@@ -1,6 +1,6 @@
 
 
-# StduinoCore-API
+# StandarduinoCore-API
 
 **ArduinoCore-API emulator with C++ STL and boost library backing (thus the Std in the name)**
 
@@ -9,12 +9,13 @@ Emulation of the ArduinoCore-API for the host with as much backing by the Standa
 This project is inspired by both the [Arduino-Emulator](https://github.com/pschatzmann/Arduino-Emulator) project
 sprinkled with ideas from ArduinoStreamUtils (https://github.com/bblanchon/ArduinoStreamUtils/tree/master/extras/test/cores/avr)
 
-# From the ArduinoCore-API
+## Do not use! This is my initial development fork
 <!--
+# From the ArduinoCore-API
+
 [![Unit Tests](https://github.com/arduino/ArduinoCore-API/workflows/Unit%20Tests/badge.svg)](https://github.com/arduino/ArduinoCore-API/actions?workflow=Unit+Tests)
 [![codecov](https://codecov.io/gh/arduino/ArduinoCore-API/branch/master/graph/badge.svg)](https://codecov.io/gh/arduino/ArduinoCore-API)
 [![Spell Check status](https://github.com/arduino/ArduinoCore-API/actions/workflows/spell-check.yml/badge.svg)](https://github.com/arduino/ArduinoCore-API/actions/workflows/spell-check.yml)
--->
 
 This repository hosts the hardware independent layer of Arduino core.
 
@@ -41,3 +42,4 @@ Example command:
 ```
 tar --exclude='*.git*' -cjhvf $yourcore-$version.tar.bz2 $yourcore/
 ```
+-->
