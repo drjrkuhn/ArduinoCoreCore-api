@@ -1,7 +1,8 @@
 
 
 # StduinoCore-API
-## ArduinoCore-API emulator with C++ STL and boost library backing (thus the Std in the name)
+
+**ArduinoCore-API emulator with C++ STL and boost library backing (thus the Std in the name)**
 
 Emulation of the ArduinoCore-API for the host with as much backing by the Standard Template Library and boost as possible for cross-compatibility. The idea is to make things like communication libraries using code that compiles both on the Host and the Arduino side.
 
