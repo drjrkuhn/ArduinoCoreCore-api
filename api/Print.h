@@ -51,7 +51,14 @@ class Print
       if (str == NULL) return 0;
       return write((const uint8_t *)str, strlen(str));
     }
-    virtual size_t write(const uint8_t *buffer, size_t size);
+    virtual size_t write(const uint8_t *buffer, size_t size) {
+  size_t n = 0;
+  while (size--) {
+    if (write(*buffer++)) n++;
+    else break;
+  }
+  return n;
+    }
     size_t write(const char *buffer, size_t size) {
       return write((const uint8_t *)buffer, size);
     }
@@ -60,7 +67,11 @@ class Print
     // should be overridden by subclasses with buffering
     virtual int availableForWrite() { return 0; }
 
-    size_t print(const __FlashStringHelper *);
+    size_t print(const __FlashStringHelper *ifsh) {
+      return print(reinterpret_cast<const char *>(ifsh));
+
+    }
+
     size_t print(const String &);
     size_t print(const char[]);
     size_t print(char);

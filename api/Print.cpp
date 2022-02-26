@@ -27,34 +27,6 @@ using namespace arduino;
 
 // Public Methods //////////////////////////////////////////////////////////////
 
-/* default implementation: may be overridden */
-size_t Print::write(const uint8_t *buffer, size_t size)
-{
-  size_t n = 0;
-  while (size--) {
-    if (write(*buffer++)) n++;
-    else break;
-  }
-  return n;
-}
-
-size_t Print::print(const __FlashStringHelper *ifsh)
-{
-#if defined(__AVR__)
-  PGM_P p = reinterpret_cast<PGM_P>(ifsh);
-  size_t n = 0;
-  while (1) {
-    unsigned char c = pgm_read_byte(p++);
-    if (c == 0) break;
-    if (write(c)) n++;
-    else break;
-  }
-  return n;
-#else
-  return print(reinterpret_cast<const char *>(ifsh));
-#endif
-}
-
 size_t Print::print(const String &s)
 {
   return write(s.c_str(), s.length());

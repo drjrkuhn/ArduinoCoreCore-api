@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "ostream": "cpp",
+        "*.impl": "cpp",
+        "__locale": "cpp",
+        "locale": "cpp"
+    }
+}
