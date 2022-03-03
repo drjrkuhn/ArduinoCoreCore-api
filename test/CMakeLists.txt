@@ -10,7 +10,7 @@ project(test-ArduinoCore-API)
 
 include_directories(../api)
 include_directories(include)
-include_directories(external/catch/v2.13.1/include)
+#include_directories(external/catch/v2.13.1/include)
 
 ##########################################################################
 
@@ -110,11 +110,19 @@ set(TEST_TARGET_SRCS
 ##########################################################################
 
 add_compile_definitions(HOST)
-add_compile_options(-Wall -Wextra -Wpedantic -Werror)
-add_compile_options(-Wno-cast-function-type)
 
-set(CMAKE_C_FLAGS   ${CMAKE_C_FLAGS}   "--coverage")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "--coverage -Wno-deprecated-copy")
+if (MSVC)
+    # warning level 4 and all warnings as errors
+    add_compile_options(/W4) # /WX)
+else()
+    # lots of warnings and all warnings as errors
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+    add_compile_options(-Wno-cast-function-type)
+    set(CMAKE_C_FLAGS   ${CMAKE_C_FLAGS}   "--coverage")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "--coverage -Wno-deprecated-copy")
+endif()
+
+
 
 ##########################################################################
 
@@ -122,6 +130,7 @@ add_executable(
   ${TEST_TARGET}
   ${TEST_TARGET_SRCS}
 )
+
 
 ##########################################################################
 

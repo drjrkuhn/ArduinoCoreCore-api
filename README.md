@@ -6,6 +6,8 @@
 
 Emulation of the ArduinoCore-API for the host with as much backing by the Standard Template Library and boost as possible for cross-compatibility. The idea is to make things like communication libraries using code that compiles both on the Host and the Arduino side.
 
+Note: That while the github project is forked from ArduinoCore-API, I copied the API folder from current avr version [ArduinoCore-avr](https://github.com/arduino/ArduinoCore-avr)
+
 This project is inspired by both the [Arduino-Emulator](https://github.com/pschatzmann/Arduino-Emulator) project
 sprinkled with ideas from ArduinoStreamUtils (https://github.com/bblanchon/ArduinoStreamUtils/tree/master/extras/test/cores/avr)
 

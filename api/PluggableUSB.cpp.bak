@@ -21,10 +21,6 @@
 #include "PluggableUSB.h"
 
 using namespace arduino;
-#if defined(USBCON)	|| defined(__INTELLISENSE__)
-#ifdef PLUGGABLE_USB_ENABLED
-
-extern uint8_t _initEndpoints[];
 
 int PluggableUSB_::getInterface(uint8_t* interfaceCount)
 {
@@ -91,7 +87,7 @@ bool PluggableUSB_::plug(PluggableUSBModule *node)
 	node->pluggedEndpoint = lastEp;
 	lastIf += node->numInterfaces;
 	for (uint8_t i = 0; i < node->numEndpoints; i++) {
-		_initEndpoints[lastEp] = node->endpointType[i];
+		*(unsigned int*)(epBuffer(lastEp)) = node->endpointType[i];
 		lastEp++;
 	}
 	return true;
@@ -102,10 +98,4 @@ PluggableUSB_& PluggableUSB()
 {
 	static PluggableUSB_ obj;
 	return obj;
-}
-PluggableUSB_::PluggableUSB_() : lastIf(CDC_ACM_INTERFACE + CDC_INTERFACE_COUNT),
-                                 lastEp(CDC_FIRST_ENDPOINT + CDC_ENPOINT_COUNT),
-                                 rootNode(NULL)
-{
-	// Empty
 }

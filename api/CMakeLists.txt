@@ -1,0 +1,43 @@
+add_library(ArduinoAPI
+	ArduinoAPI.h
+	Binary.h
+	Client.h
+	Common.cpp
+	Common.h
+	Compat.h
+	HardwareI2C.h
+	HardwareSerial.h
+	HardwareSPI.h
+	Interrupts.h
+	IPAddress.cpp
+	IPAddress.h
+	itoa.h
+	PluggableUSB.cpp
+	PluggableUSB.h
+	Print.cpp
+	Print.h
+	Printable.h
+	RingBuffer.h
+	Server.h
+	Stream.cpp
+	Stream.h
+	String.cpp
+	String.h
+	Udp.h
+	USBAPI.h
+	WCharacter.h
+	deprecated-avr-comp/avr/dtostrf.h
+	deprecated-avr-comp/avr/interrupt.h
+	deprecated-avr-comp/avr/pgmspace.h
+)
+
+add_compile_definitions(USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
+#target_compile_definitions(ArduinoAPI  USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
+
+target_include_directories(ArduinoAPI
+	PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set_property(TARGET ArduinoAPI PROPERTY CXX_STANDARD 14)
+
