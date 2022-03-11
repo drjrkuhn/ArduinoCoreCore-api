@@ -41,7 +41,7 @@ namespace stduino {
 		// move constructor
 		explicit basic_String(basic_String&& other) : BASE(std::move(other)) { };
 #endif
-		// Character constuctors
+		// Character constructors
 		template <typename T, std::enable_if_t< is_character_v<T>, bool> = true>
 		explicit basic_String(T c)
 			: BASE(1, static_cast<charT>(c)) {
@@ -72,6 +72,16 @@ namespace stduino {
 		// move assignment
 		basic_String& operator= (basic_String&& other) { assign(std::move(other)); return *this; }
 #endif
+
+		// iterators from std::basic_string
+		using BASE::begin;
+		using BASE::end;
+		using BASE::cbegin;
+		using BASE::cend;
+		using BASE::rbegin;
+		using BASE::rend;
+		using BASE::crbegin;
+		using BASE::crend;
 
 		// concatenate (works w/ built-in types)
 		bool concat(const basic_String& rhs) { BASE::append(rhs); return true; }
@@ -113,16 +123,6 @@ namespace stduino {
 			basic_String ret(lhs);
 			return ret += rhs;
 		}
-
-		// iterators from std::basic_string
-		using BASE::begin;
-		using BASE::end;
-		using BASE::cbegin;
-		using BASE::cend;
-		using BASE::rbegin;
-		using BASE::rend;
-		using BASE::crbegin;
-		using BASE::crend;
 
 		// validity operator
 		operator StringIfHelperType() const {
@@ -251,8 +251,9 @@ namespace stduino {
 		static size_t indexToPos(unsigned int index) {
 			return index == INT_MAX ? BASE::npos : static_cast<size_t>(index);
 		}
-
 	};
+	
+	using String = basic_String<char>;
 } // namespace arduino
 
 #if defined(DOCTEST_LIBRARY_INCLUDED) && defined(DOCTEST_NEW_STRING)
@@ -261,7 +262,6 @@ namespace stduino {
 
 TEST_SUITE("[new_String.h]") {
 	using namespace stduino;
-	using String = basic_String<char>;
 
 
 	TEST_CASE("constructors") {
@@ -323,6 +323,10 @@ TEST_SUITE("[new_String.h]") {
 		// move assignment
 		CHECK((lhs = std::move(other)) == "other");
 		CHECK(other == "");
+		lhs.clear();
+		CHECK(lhs == "");
+
+
 	}
 
 	TEST_CASE_TEMPLATE("concat strings ptrs", PTR, SU_CHARACTER_PTRS) {

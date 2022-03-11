@@ -37,13 +37,13 @@ namespace arduino {
 	class basic_Print : basic_ostream<charT, traits>
 	{
 	protected:
-		void setWriteError(int err = 1) { write_error = err; }
+		void setWriteError(int err = 1) { write_error_ = err; }
 	public:
 		basic_print((basic_streambuf<charT, traits>* sbuf)
-			: basic_ostream(sbuf), write_error(0) {
+			: basic_ostream(sbuf), write_error_(0) {
 		}
 
-		int getWriteError() { return write_error; }
+		int getWriteError() { return write_error_; }
 		void clearWriteError() { setWriteError(0); }
 
 		virtual size_t write(uint8_t) = 0;
@@ -234,7 +234,7 @@ namespace arduino {
 
 		virtual void flush() { /* Empty implementation for backward compatibility */ }
 	private:
-		int write_error;
+		int write_error_;
 
 		size_t printNumber(unsigned long n, uint8_t base)
 		{

@@ -20,7 +20,7 @@
 
 namespace stduino {
 
-	template <typename charT, typename traits = std::char_traits<charT> >
+	template <typename charT, typename traits>
 	class basic_Print;
 
 	/** The Printable class provides a way for new classes to allow themselves to be printed.
