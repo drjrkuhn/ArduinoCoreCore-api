@@ -3,6 +3,8 @@
 #include <string>
 #include <type_traits>
 
+//#define ENABLE_CHAR_TO_STRING 1
+
 namespace stduino {
 
 	constexpr unsigned char DEC = 10;
@@ -46,29 +48,36 @@ namespace stduino {
 	template <typename T>
 	constexpr bool is_nonchar_arithmetic_v = is_nonchar_integral_v<T> || std::is_floating_point_v<T>;
 
+#ifdef ENABLE_CHAR_TO_STRING
 	template <typename T>
 	constexpr bool is_stdstringable_v = is_character_v<T> || is_nonchar_arithmetic_v<T>;
+#else
+	template <typename T>
+	constexpr bool is_stdstringable_v = is_nonchar_arithmetic_v<T>;
+#endif
 
 	/** Integers default to DEC as their base. */
 	template<typename numT, std::enable_if_t<is_nonchar_integral_v<numT>, bool> = true>
-	unsigned char DefaultBaseOrPlaces() { return DEC; }
+	unsigned char baseOrPlaces() { return DEC; }
 
 	/** Floats default to 2 places after the decimal. */
 	template<typename numT, std::enable_if_t<std::is_floating_point_v<numT>, bool> = true>
-	unsigned char DefaultBaseOrPlaces() { return 2; }
+	unsigned char baseOrPlaces()
+	{ return 2; }
 
+#ifdef ENABLE_CHAR_TO_STRING
 	/** Floats default to 2 places after the decimal. */
 	template<typename numT, std::enable_if_t<is_character_v<numT>, bool> = true>
-	unsigned char DefaultBaseOrPlaces() { return 1; }
+	unsigned char baseOrPlaces() { return 1; }
+#endif
 
-	
 	/**
 	 * Append the value of a generic **unsigned** integer to a generic string with a generic base.
 	 *
 	 * Output should be the similar to the Arduino's Print.printNumber() function.
 	 */
 	template<typename charT, typename numT, typename std::enable_if_t<is_nonchar_unsigned_integral_v<numT>, bool> = true>
-	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char base = DefaultBaseOrPlaces<numT>(), bool reversed = false)
+	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char base = baseOrPlaces<numT>(), bool reversed = false)
 	{
 		if (base < 2) base = 2;
 		// create the number string in reverse order by appending digits
@@ -93,7 +102,7 @@ namespace stduino {
 	 * numbers are represented as their two's complement.
 	 */
 	template<typename charT, typename numT, typename std::enable_if_t<is_nonchar_signed_integral_v<numT>, bool> = true>
-	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char base = DefaultBaseOrPlaces<numT>(), bool reversed = false)
+	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char base = baseOrPlaces<numT>(), bool reversed = false)
 	{
 		using unsignedN = std::make_unsigned<numT>::type;
 		constexpr bool KEEP_REVERSED = true;
@@ -123,7 +132,7 @@ namespace stduino {
 	 * print exponential notation.
 	 */
 	template<typename charT, typename numT, typename std::enable_if_t<std::is_floating_point_v<numT>, bool> = true>
-	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char decimalPlaces = DefaultBaseOrPlaces<numT>())
+	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char decimalPlaces = baseOrPlaces<numT>())
 	{
 		if (decimalPlaces < 0)
 			decimalPlaces = 2;
@@ -174,48 +183,50 @@ namespace stduino {
 	 * Output should be the similar to the Arduino's Print.printNumber() function.
 	 */
 	template<typename charT, typename numT, typename std::enable_if_t<is_nonchar_arithmetic_v<numT>, bool> = true>
-	std::basic_string<charT> to_stdsstring(numT number, unsigned char baseOrPlaces = DefaultBaseOrPlaces<numT>())
+	std::basic_string<charT> to_stdsstring(numT number, unsigned char baseOrPlaces = baseOrPlaces<numT>())
 	{
 		std::basic_string<charT> res;
 		return appendNumber(res, number, baseOrPlaces);
 	}
 
+#if ENABLE_CHAR_TO_STRING
 	/**
 	 * Add characters (signed or unsigned) to simple 1 character strings. 
 	 * 
 	 * Unlike integers or floats, characters should be treated directly and should not be converted to base 10.
 	 */
 	template<typename charT, typename cT, typename std::enable_if_t<is_character_v<cT>, bool> = true>
-	std::basic_string<charT> to_stdsstring(cT c, unsigned char dummy = DefaultBaseOrPlaces<cT>())
+	std::basic_string<charT> to_stdsstring(cT c, unsigned char dummy = baseOrPlaces<cT>())
 	{
 		return std::basic_string<charT>(1, c);
-		//return appendNumber(res, number, baseOrPlaces);
 	}
-
-
-
+#endif
 
 } // namespace stduino
 
-#if 0 && defined(DOCTEST_LIBRARY_INCLUDED)
+#if defined(DOCTEST_LIBRARY_INCLUDED) && defined(DOCTEST_STRING_HELPERS)
 #include <iostream>
 #include <doctest/doctest.h>
 
 TEST_SUITE("[String_helpers.h]") {
 	using namespace stduino;
 
+#ifdef ENABLE_CHAR_TO_STRING
 	TEST_CASE_TEMPLATE("[String_helpers.h] DefaultBaseOrCase characters", N, SU_CHARACTERS) {
-		CHECK(DefaultBaseOrPlaces<N>() == 1);
+		CHECK(baseOrPlaces<N>() == 1);
 	}
+#endif
 	TEST_CASE_TEMPLATE("[String_helpers.h] DefaultBaseOrCase integrals", N, SU_INTEGRALS) {
-		CHECK(DefaultBaseOrPlaces<N>() == DEC);
+		CHECK(baseOrPlaces<N>() == DEC);
 	}
 	TEST_CASE_TEMPLATE("[String_helpers.h] DefaultBaseOrCase floats", N, SU_FLOATS) {
-		CHECK(DefaultBaseOrPlaces<N>() == 2);
+		CHECK(baseOrPlaces<N>() == 2);
 	}
+#ifdef ENABLE_CHAR_TO_STRING
 	TEST_CASE_TEMPLATE("[String_helpers.h] to_stdstring", N, SU_CHARACTERS) {
 		CHECK(to_stdsstring<char, N>(N('d')) == "d");
 	}
+#endif
 	TEST_CASE_TEMPLATE("[String_helpers.h] to_stdstring", N, SU_INTEGRALS) {
 		CHECK(to_stdsstring<char, N>(N(100)) == "100");
 	}

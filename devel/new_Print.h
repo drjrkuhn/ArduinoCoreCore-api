@@ -85,7 +85,7 @@ namespace stduino {
 		size_t print(const __FlashStringHelper* ifsh) { return print(reinterpret_cast<const charT_ptr>(ifsh)); }
 		size_t print(unsigned char b, int base = DEC) { return print((unsigned int)b, base); }
 		template<class numT, typename std::enable_if_t<std::is_arithmetic_v<numT>, bool> = true>
-		size_t print(numT number, unsigned char baseOrPlaces = DefaultBaseOrPlaces<numT>()) { return print(to_stdsstring(number, baseOrPlaces)); }
+		size_t print(numT number, unsigned char baseOrPlaces = baseOrPlaces<numT>()) { return print(to_stdsstring(number, baseOrPlaces)); }
 		size_t print(const Printable& x) { return x.printTo(*this); }
 
 		size_t println(void) { return write("\r\n"); }
@@ -99,7 +99,7 @@ namespace stduino {
 		size_t println(const __FlashStringHelper* ifsh) { return print(ifsh) + println(); }
 		size_t println(unsigned char b, int base = DEC) { return print(b, base) + println(); }
 		template<class numT, typename std::enable_if_t<std::is_arithmetic_v<numT>, bool> = true>
-		size_t println(numT number, unsigned char baseOrPlaces = DefaultBaseOrPlaces<numT>()) { return print(number, baseOrPlaces) + println(); }
+		size_t println(numT number, unsigned char baseOrPlaces = baseOrPlaces<numT>()) { return print(number, baseOrPlaces) + println(); }
 		size_t println(const Printable& x) { return print(x) + println(); }
 
 		virtual void flush() { /* Empty implementation for backward compatibility */ }
