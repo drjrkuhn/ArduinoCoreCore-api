@@ -17,24 +17,16 @@ namespace stduino {
 	using const_Fchar_ptr = const __FlashStringHelper*;
 
 
-	// An inherited class for holding the result of a concatenation.  These
-	// result objects are assumed to be writable by subsequent concatenations.
-	//class StringSumHelper;
-
-
 	// The string class
 	template <typename charT, typename traits = std::char_traits<charT> >
 	class basic_String : public std::basic_string<charT, traits>
 	{
-#if 1
-		//friend class StringSumHelper;
-
 		// use a function pointer to allow for "if (s)" without the
 		// complications of an operator bool(). for more information, see:
 		// http://www.artima.com/cppsource/safebool.html
 		typedef void (basic_String::* StringIfHelperType)() const;
 		void StringIfHelper() const {}
-#endif
+
 		static size_t const FLT_MAX_DECIMAL_PLACES = 10;
 		static size_t const DBL_MAX_DECIMAL_PLACES = FLT_MAX_DECIMAL_PLACES;
 
@@ -114,32 +106,6 @@ namespace stduino {
 			return ret += rhs;
 		}
 
-		//basic_String& operator+= (const String& rhs) { concat(rhs); return (*this); }
-		//basic_String& operator+= (const char* cstr) { concat(cstr); return (*this); }
-		//basic_String& operator+= (char c) { concat(c); return (*this); }
-		//basic_String& operator+= (unsigned char num) { concat(num); return (*this); }
-		//basic_String& operator+= (int num) { concat(num); return (*this); }
-		//basic_String& operator+= (unsigned int num) { concat(num); return (*this); }
-		//basic_String& operator+= (long num) { concat(num); return (*this); }
-		//basic_String& operator+= (unsigned long num) { concat(num); return (*this); }
-		//basic_String& operator+= (float num) { concat(num); return (*this); }
-		//basic_String& operator+= (double num) { concat(num); return (*this); }
-		//basic_String& operator+= (const __FlashStringHelper* str) { concat(str); return (*this); }
-
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, const String& rhs);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, const char* cstr);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, char c);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, unsigned char num);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, int num);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, unsigned int num);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, long num);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, unsigned long num);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, float num);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, double num);
-		//friend StringSumHelper& operator + (const StringSumHelper& lhs, const __FlashStringHelper* rhs);
-		//template<typename T>
-		//friend basic_String& operator+(const basic_String& lhs, const T rhs) { basic_String res = lhs;  res.concat(rhs); return true; }
-
 		// comparison (only works w/ Strings and "strings")
 		operator StringIfHelperType() const { return true ? &basic_String::StringIfHelper : 0; /** std::string always valid */ }
 		int compareTo(const stdstring& s) const { return stdstring::compare(s); }
@@ -149,27 +115,6 @@ namespace stduino {
 		bool equals(const stdstring& s) const { return 0==compareTo(s); }
 		bool equals(const basic_String& s) const { return 0==compareTo(s); }
 		bool equals(const char* cstr) const { return 0==compareTo(cstr); }
-
-		// Just use std::basic_string comparisons
-		//friend bool operator == (const String& a, const String& b) { return a.equals(b); }
-		//friend bool operator == (const String& a, const char* b) { return a.equals(b); }
-		//friend bool operator == (const char* a, const String& b) { return b == a; }
-		//friend bool operator <  (const String& a, const String& b) { return a.compareTo(b) < 0; }
-		//friend bool operator <  (const String& a, const char* b) { return a.compareTo(b) < 0; }
-		//friend bool operator <  (const char* a, const String& b) { return b.compareTo(a) > 0; }
-
-		//friend bool operator != (const String& a, const String& b) { return !(a == b); }
-		//friend bool operator != (const String& a, const char* b) { return !(a == b); }
-		//friend bool operator != (const char* a, const String& b) { return !(a == b); }
-		//friend bool operator >  (const String& a, const String& b) { return b < a; }
-		//friend bool operator >  (const String& a, const char* b) { return b < a; }
-		//friend bool operator >  (const char* a, const String& b) { return b < a; }
-		//friend bool operator <= (const String& a, const String& b) { return !(b < a); }
-		//friend bool operator <= (const String& a, const char* b) { return !(b < a); }
-		//friend bool operator <= (const char* a, const String& b) { return !(b < a); }
-		//friend bool operator >= (const String& a, const String& b) { return !(a < b); }
-		//friend bool operator >= (const String& a, const char* b) { return !(a < b); }
-		//friend bool operator >= (const char* a, const String& b) { return !(a < b); }
 
 		bool equalsIgnoreCase(const basic_String& b) const {
 			return length() == b.length() &&
@@ -216,12 +161,6 @@ namespace stduino {
 		void toCharArray(charT_ptr buf, unsigned int bufsize, unsigned int index = 0) const	{
 			getBytes(reinterpret_cast<uint8_ptr>(buf), bufsize, index);
 		}
-		// USE std::string versions
-		//const char* c_str() const { return buffer; }
-		//char* begin() { return buffer; }
-		//char* end() { return buffer + length(); }
-		//const char* begin() const { return c_str(); }
-		//const char* end() const { return c_str() + length(); }
 
 		// search
 		int indexOf(charT ch, unsigned int fromIndex = 0) const {
@@ -293,7 +232,7 @@ namespace stduino {
 	};
 } // namespace arduino
 
-#if 1 || defined(DOCTEST_LIBRARY_INCLUDED) && defined(DOCTEST_NEW_STRING)
+#if defined(DOCTEST_LIBRARY_INCLUDED) && defined(DOCTEST_NEW_STRING)
 #include <iostream>
 #include <doctest/doctest.h>
 
@@ -321,7 +260,6 @@ TEST_SUITE("[new_String.h]") {
 		CHECK(other == "");
 	}
 
-#if 1
 	TEST_CASE_TEMPLATE("constructor chars", N, SU_CHARACTERS) {
 		CHECK(String(N('c')) == "c");
 	}
@@ -426,7 +364,6 @@ TEST_SUITE("[new_String.h]") {
 		CHECK(res.concat(N(-100.0), 4));
 		CHECK(res == "res:-100.0000");
 	}
-#endif
 	TEST_CASE_TEMPLATE("operator+= strings ptrs", PTR, SU_CHARACTER_PTRS) {
 		String hello = "hello ";
 		CHECK((hello += PTR("world")) == "hello world");
