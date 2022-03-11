@@ -12,11 +12,6 @@ namespace stduino {
 #define PSTR(string_literal) string_literal
 #define F(string_literal) (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))
 
-	using uint8_ptr = uint8_t*;
-	using const_uint8_ptr = const uint8_t*;
-	using const_Fchar_ptr = const __FlashStringHelper*;
-
-
 	// The string class
 	template <typename charT, typename traits = std::char_traits<charT> >
 	class basic_String : public std::basic_string<charT, traits>
@@ -30,107 +25,135 @@ namespace stduino {
 		static size_t const FLT_MAX_DECIMAL_PLACES = 10;
 		static size_t const DBL_MAX_DECIMAL_PLACES = FLT_MAX_DECIMAL_PLACES;
 
-	public:
-		using stdstring = std::basic_string<charT,traits>;
-		using const_charT = const charT;
-		using charT_ptr = charT*;
-		using const_charT_ptr = const charT*;
+		using BASE = std::basic_string<charT, traits>;
 
+	public:
 		// string constructors
 		basic_String() = default;
-		basic_String(const_charT_ptr c_str) : stdstring(c_str) {}
-		basic_String(const_Fchar_ptr f_str) : stdstring(reinterpret_cast<const_charT_ptr>(f_str)) {}
-		basic_String(const_charT_ptr c_str, size_t length) : stdstring(c_str, length) {}
-		basic_String(const_uint8_ptr c_str, size_t length) : stdstring(reinterpret_cast<const_charT_ptr>(c_str), length) {}
-		basic_String(const stdstring& other) : stdstring(other) {}
+		basic_String(const charT* c_str) : BASE(c_str) {}
+		basic_String(const __FlashStringHelper* f_str) : BASE(reinterpret_cast<const charT*>(f_str)) {}
+		basic_String(const charT* c_str, size_t length) : BASE(c_str, length) {}
+		basic_String(const uint8_t* c_str, size_t length) : BASE(reinterpret_cast<const charT*>(c_str), length) {}
+		basic_String(const BASE& other) : BASE(other) {}
 		// copy constructor
-		explicit basic_String(const basic_String<charT, traits>& other) : stdstring(other) {}
+		explicit basic_String(const basic_String<charT, traits>& other) : BASE(other) {}
 #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__) || _MSVC_LANG >= 201402L
 		// move constructor
-		explicit basic_String(basic_String&& other) : stdstring(std::move(other)) { };
+		explicit basic_String(basic_String&& other) : BASE(std::move(other)) { };
 #endif
 		// Character constuctors
 		template <typename T, std::enable_if_t< is_character_v<T>, bool> = true>
-		explicit basic_String(T c) : stdstring(1, static_cast<charT>(c)) {}
+		explicit basic_String(T c)
+			: BASE(1, static_cast<charT>(c)) {
+		}
 		// Numerical constructors
 		template <typename T, std::enable_if_t< is_nonchar_arithmetic_v<T>, bool> = true>
-		explicit basic_String(const T number, unsigned int bop=baseOrPlaces<T>()) : stdstring(to_stdsstring<charT,T>(number, bop)) {}
+		explicit basic_String(const T number, unsigned int bop = baseOrPlaces<T>())
+			: BASE(to_stdsstring<charT, T>(number, bop)) {
+		}
 
 		// destructor
-		~basic_String(void) { stdstring::~stdstring(); }
+		~basic_String(void) { BASE::~BASE(); }
 
 		// memory management
 		// return true on success, false on failure (in which case, the string
 		// is left unchanged).  reserve(0), if successful, will validate an
 		// invalid string (i.e., "if (s)" will be true afterwards)
-		bool reserve(unsigned int size) { stdstring::reserve(size); return stdstring::capacity() >= size; }
+		bool reserve(unsigned int size) { BASE::reserve(size); return BASE::capacity() >= size; }
 
-		unsigned int length(void) const { return static_cast<unsigned int>(stdstring::length()); }
+		unsigned int length(void) const { return static_cast<unsigned int>(BASE::length()); }
 
 		// copy assignment operators
-		basic_String& operator= (stdstring const& rhs) { assign(rhs); return *this; }
-		basic_String& operator= (const_charT_ptr c_str) { assign(c_str); return *this; }
-		basic_String& operator= (const_Fchar_ptr f_str) { assign(reinterpret_cast<const_charT_ptr>(f_str)); return *this; }
+		basic_String& operator= (BASE const& rhs) { assign(rhs); return *this; }
+		basic_String& operator= (const charT* c_str) { assign(c_str); return *this; }
+		basic_String& operator= (const __FlashStringHelper* f_str) { assign(reinterpret_cast<const charT*>(f_str)); return *this; }
 		basic_String& operator= (const basic_String& other) { assign(other); return *this; }
 #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__) || _MSVC_LANG >= 201402L
 		// move assignment
-		basic_String& operator= (basic_String&& other) { assign(std::move(other)); return *this;		}
+		basic_String& operator= (basic_String&& other) { assign(std::move(other)); return *this; }
 #endif
 
 		// concatenate (works w/ built-in types)
-		bool concat(const basic_String& rhs) { append(rhs); return true; }
-		bool concat(const stdstring& rhs) { append(rhs); return true; }
+		bool concat(const basic_String& rhs) { BASE::append(rhs); return true; }
+		bool concat(const BASE& rhs) { BASE::append(rhs); return true; }
 		// append pointer to string with length
 		template<class strT, std::enable_if_t<is_character_ptr_v<strT>, bool> = true>
-		bool concat(const strT rhs, size_t length) { append(reinterpret_cast<const_charT_ptr>(rhs), length); return true; }
+		bool concat(const strT rhs, size_t length) {
+			BASE::append(reinterpret_cast<const charT*>(rhs), length);
+			return true;
+		}
 		// append pointer to zero-terminated string
 		template<typename strT, std::enable_if_t<is_character_ptr_v<strT>, bool> = true>
-		bool concat(const strT rhs) { append(reinterpret_cast<const_charT_ptr>(rhs)); return true; }
+		bool concat(const strT rhs) {
+			BASE::append(reinterpret_cast<const charT*>(rhs));
+			return true;
+		}
 		// append character
 		template <typename cT, std::enable_if_t<is_character_v<cT>, bool> = true>
-		bool concat(cT c) { append(1, static_cast<charT>(c));  return true; }
+		bool concat(cT c) {
+			BASE::append(1, static_cast<charT>(c));
+			return true;
+		}
 		// append number
 		template <typename T, std::enable_if_t< is_nonchar_arithmetic_v<T>, bool> = true>
-		bool concat(const T number, unsigned char baseOrPlaces=baseOrPlaces<T>()) { return concat(to_stdsstring<charT, T>(number, baseOrPlaces));	}
+		bool concat(const T number, unsigned char baseOrPlaces = baseOrPlaces<T>()) {
+			return concat(to_stdsstring<charT, T>(number, baseOrPlaces));
+		}
 
 		// operator+= is a proxy for concat
 		template <typename rhsT>
-		basic_String& operator+= (const rhsT rhs) { 
-			concat(rhs); return (*this); 
+		basic_String& operator+= (const rhsT rhs) {
+			concat(rhs);
+			return (*this);
 		}
 
 		// operator+ is a proxy for +=
 		template <typename lhsT, typename rhsT>
-		friend basic_String operator+ (const lhsT lhs, const rhsT rhs) { 
+		friend basic_String operator+ (const lhsT lhs, const rhsT rhs) {
 			basic_String ret(lhs);
 			return ret += rhs;
 		}
 
-		// comparison (only works w/ Strings and "strings")
-		operator StringIfHelperType() const { return true ? &basic_String::StringIfHelper : 0; /** std::string always valid */ }
-		int compareTo(const stdstring& s) const { return stdstring::compare(s); }
-		int compareTo(const basic_String& s) const { return stdstring::compare(s); }
-		int compareTo(const char* cstr) const { return stdstring::compare(cstr); }
+		// iterators from std::basic_string
+		using BASE::begin;
+		using BASE::end;
+		using BASE::cbegin;
+		using BASE::cend;
+		using BASE::rbegin;
+		using BASE::rend;
+		using BASE::crbegin;
+		using BASE::crend;
 
-		bool equals(const stdstring& s) const { return 0==compareTo(s); }
-		bool equals(const basic_String& s) const { return 0==compareTo(s); }
-		bool equals(const char* cstr) const { return 0==compareTo(cstr); }
+		// validity operator
+		operator StringIfHelperType() const {
+			/** std::string should "always" be valid */
+			return true ? &basic_String::StringIfHelper : 0;
+		}
+
+		// comparison (only works w/ Strings and "strings")
+		int compareTo(const BASE& s) const { return BASE::compare(s); }
+		int compareTo(const basic_String& s) const { return BASE::compare(s); }
+		int compareTo(const char* cstr) const { return BASE::compare(cstr); }
+
+		bool equals(const BASE& s) const { return 0 == compareTo(s); }
+		bool equals(const basic_String& s) const { return 0 == compareTo(s); }
+		bool equals(const char* cstr) const { return 0 == compareTo(cstr); }
 
 		bool equalsIgnoreCase(const basic_String& b) const {
 			return length() == b.length() &&
 				std::equal(begin(), end(), b.begin(), b.end(),
-				[](charT a, charT b) {	return tolower(a) == tolower(b); }
+					[](charT a, charT b) { return tolower(a) == tolower(b); }
 			);
 		}
-		bool startsWith(const basic_String& prefix) const { 
-			return 0 == stdstring::compare(0, prefix.length(), prefix); 
+		bool startsWith(const basic_String& prefix) const {
+			return 0 == BASE::compare(0, prefix.length(), prefix);
 		}
 		bool startsWith(const basic_String& prefix, unsigned int offset) const {
-			return 0 == stdstring::compare(offset, prefix.length(), prefix);
+			return 0 == BASE::compare(offset, prefix.length(), prefix);
 		}
 		bool endsWith(const basic_String& suffix) const {
 			size_t slen = suffix.length();
-			return 0 == stdstring::compare(length()-slen, slen, suffix);
+			return 0 == BASE::compare(length() - slen, slen, suffix);
 		}
 
 		// character access
@@ -138,68 +161,68 @@ namespace stduino {
 		void setCharAt(unsigned int index, charT c) { operator[index] = c; }
 		charT operator[] (unsigned int index) const {
 			if (index < 0 || index > length()) return 0;
-			return stdstring::operator[](index);
+			return BASE::operator[](index);
 		}
 		charT& operator[] (unsigned int index) {
 			static charT dummy;
 			if (index < 0 || index > length()) return dummy;
-			return stdstring::operator[](index);
+			return BASE::operator[](index);
 		}
-		void getBytes(uint8_ptr buf, unsigned int bufsize, unsigned int index = 0) const {
+		void getBytes(uint8_t* buf, unsigned int bufsize, unsigned int index = 0) const {
 			int len = length();
 			if (!bufsize || !buf) return;
 			if (index >= len) {
 				buf[0] = 0;
-			} else {
+			}
+			else {
 				unsigned int n = bufsize - 1;
 				if (n > len - index) n = len - index;
-				std::copy_n(begin() + index, n, reinterpret_cast<charT_ptr>(buf));
-				//strncpy(reinterpret_cast<charT_ptr>(buf), buffer + index, n);
+				std::copy_n(begin() + index, n, reinterpret_cast<charT*>(buf));
 				buf[n] = 0;
 			}
 		}
-		void toCharArray(charT_ptr buf, unsigned int bufsize, unsigned int index = 0) const	{
-			getBytes(reinterpret_cast<uint8_ptr>(buf), bufsize, index);
+		void toCharArray(charT* buf, unsigned int bufsize, unsigned int index = 0) const {
+			getBytes(reinterpret_cast<uint8_t*>(buf), bufsize, index);
 		}
 
 		// search
 		int indexOf(charT ch, unsigned int fromIndex = 0) const {
-			return posToIndex(stdstring::find(ch, fromIndex));
+			return posToIndex(BASE::find(ch, fromIndex));
 		}
 		int indexOf(const basic_String& str, unsigned int fromIndex = 0) const {
-			return posToIndex(stdstring::find(str, fromIndex));
+			return posToIndex(BASE::find(str, fromIndex));
 		}
-		int lastIndexOf(charT ch, unsigned int fromIndex=UINT_MAX) const {
-			return posToIndex(stdstring::rfind(ch, indexToPos(fromIndex)));
+		int lastIndexOf(charT ch, unsigned int fromIndex = UINT_MAX) const {
+			return posToIndex(BASE::rfind(ch, indexToPos(fromIndex)));
 		}
-		int lastIndexOf(const basic_String& str, unsigned int fromIndex=UINT_MAX) const {
-			return posToIndex(stdstring::rfind(str, indexToPos(fromIndex)));
+		int lastIndexOf(const basic_String& str, unsigned int fromIndex = UINT_MAX) const {
+			return posToIndex(BASE::rfind(str, indexToPos(fromIndex)));
 		}
-		basic_String substring(unsigned int beginIndex, unsigned int endIndex=UINT_MAX) const {
+		basic_String substring(unsigned int beginIndex, unsigned int endIndex = UINT_MAX) const {
 			size_t len = length();
 			size_t first = indexToPos(beginIndex);
 			if (first > len) first = len;
 			size_t last = indexToPos(endIndex);
 			if (last > len) last = len;
-			return stdstring::substr(first, last-first);
+			return BASE::substr(first, last - first);
 		}
 
 		// modification
 		void replace(charT find, charT replace) {
 			size_t pos = 0;
-			while ((pos = stdstring::find(find, pos)) != stdstring::npos) {
+			while ((pos = BASE::find(find, pos)) != BASE::npos) {
 				(*this)[pos++] = replace;
 			}
 		}
 		void replace(const basic_String& find, const basic_String& replace) {
 			size_t len = find.length();
 			size_t pos = 0;
-			while ((pos = stdstring::find(find, pos)) != stdstring::npos) {
-				stdstring::replace(pos, len, replace);
+			while ((pos = BASE::find(find, pos)) != BASE::npos) {
+				BASE::replace(pos, len, replace);
 			}
 		}
-		void remove(unsigned int index, unsigned int count=1) {
-			stdstring::erase(index, count);
+		void remove(unsigned int index, unsigned int count = 1) {
+			BASE::erase(index, count);
 		}
 		void toLowerCase(void) {
 			std::transform(begin(), end(), begin(), std::tolower);
@@ -208,13 +231,13 @@ namespace stduino {
 			std::transform(begin(), end(), begin(), std::toupper);
 		}
 		void trim(void) {
-			stdstring::iterator left = std::find_if_not(begin(), end(), std::isspace);
+			BASE::iterator left = std::find_if_not(begin(), end(), std::isspace);
 			if (left != begin()) {
-				stdstring::erase(begin(), left);
+				BASE::erase(begin(), left);
 			}
-			stdstring::reverse_iterator right = std::find_if_not(rbegin(), rend(), std::isspace);
+			BASE::reverse_iterator right = std::find_if_not(rbegin(), rend(), std::isspace);
 			if (right != rbegin()) {
-				stdstring::erase(right.base(), end());
+				BASE::erase(right.base(), end());
 			}
 		}
 		// parsing/conversion
@@ -223,10 +246,10 @@ namespace stduino {
 		double toDouble(void) const { return ::atof(c_str()); }
 	protected:
 		static int posToIndex(size_t pos) {
-			return pos == stdstring::npos ? -1 : static_cast<int>(pos);
+			return pos == BASE::npos ? -1 : static_cast<int>(pos);
 		}
 		static size_t indexToPos(unsigned int index) {
-			return index == INT_MAX ? stdstring::npos : static_cast<size_t>(index);
+			return index == INT_MAX ? BASE::npos : static_cast<size_t>(index);
 		}
 
 	};
@@ -247,8 +270,8 @@ TEST_SUITE("[new_String.h]") {
 		CHECK(String(F("hello")) == "hello");
 		CHECK(String("hello", 5) == "hello");
 		CHECK(String("hello", 4) == "hell");
-		CHECK(String(reinterpret_cast<const_uint8_ptr>("hello"), 5) == "hello");
-		CHECK(String(reinterpret_cast<const_uint8_ptr>("hello"), 4) == "hell");
+		CHECK(String(reinterpret_cast<const uint8_t*>("hello"), 5) == "hello");
+		CHECK(String(reinterpret_cast<const uint8_t*>("hello"), 4) == "hell");
 		std::string stdother = "world";
 		CHECK(String(stdother) == "world");
 		String other(stdother);

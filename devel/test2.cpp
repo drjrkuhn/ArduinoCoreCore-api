@@ -97,7 +97,7 @@ using StdString = std::string;
 
 class mystring : public StdString {
 public:
-	explicit mystring(const StdString& stdstring) : StdString(stdstring) { std::cerr << __PRETTY_FUNCTION__ << std::endl; }
+	explicit mystring(const StdString& BASE) : StdString(BASE) { std::cerr << __PRETTY_FUNCTION__ << std::endl; }
 	mystring(const mystring& other) : StdString(reinterpret_cast<const StdString&>(other)) { std::cerr << __PRETTY_FUNCTION__ << std::endl; }
 	mystring(mystring&& rhs) : StdString(std::move(rhs)) { std::cerr << __PRETTY_FUNCTION__ << std::endl; }
 

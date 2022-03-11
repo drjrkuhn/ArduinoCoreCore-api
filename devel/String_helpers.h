@@ -16,7 +16,7 @@ namespace stduino {
 
 	// alias for std::basic_string<T> used below
 	template<typename charT, typename traits = std::char_traits<charT>>
-	using stdstring = std::basic_string<charT>;
+	using BASE = std::basic_string<charT>;
 
 	// New type traits
 	template <typename T, typename... Ts>
@@ -63,7 +63,9 @@ namespace stduino {
 	/** Floats default to 2 places after the decimal. */
 	template<typename numT, std::enable_if_t<std::is_floating_point_v<numT>, bool> = true>
 	unsigned char baseOrPlaces()
-	{ return 2; }
+	{
+		return 2;
+	}
 
 #ifdef ENABLE_CHAR_TO_STRING
 	/** Floats default to 2 places after the decimal. */
@@ -191,8 +193,8 @@ namespace stduino {
 
 #if ENABLE_CHAR_TO_STRING
 	/**
-	 * Add characters (signed or unsigned) to simple 1 character strings. 
-	 * 
+	 * Add characters (signed or unsigned) to simple 1 character strings.
+	 *
 	 * Unlike integers or floats, characters should be treated directly and should not be converted to base 10.
 	 */
 	template<typename charT, typename cT, typename std::enable_if_t<is_character_v<cT>, bool> = true>

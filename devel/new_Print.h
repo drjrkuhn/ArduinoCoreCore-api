@@ -36,10 +36,10 @@ namespace stduino {
 	protected:
 		void setWriteError(int err = 1) { write_error = err; }
 	public:
-		using stdstring = std::basic_string<charT, traits>;
+		using BASE = std::basic_string<charT, traits>;
 		using charT_ptr = traits::pointer;
-		using iterator = stdstring::iterator;
-		using const_iterator = stdstring::const_iterator;
+		using iterator = BASE::iterator;
+		using const_iterator = BASE::const_iterator;
 
 		basic_print(charT_ptr sbuf)
 			: basic_ostream(sbuf), write_error(0) {
@@ -69,7 +69,7 @@ namespace stduino {
 		size_t write(const charT_ptr buffer, size_t size) { return buffer == NULL ? 0 : write(static_cast<const uint8_t*>(buffer), size); }
 		size_t write(const_iterator begin, const_iterator end) { write(begin, end - begin); }
 		size_t write(const charT_ptr c_str) { return write(c_str, strlen(c_str)); }
-		size_t write(const stdstring std_str) { return write(std_str.begin(), std_str.length()); }
+		size_t write(const BASE std_str) { return write(std_str.begin(), std_str.length()); }
 
 		/** default to zero, meaning "a single write may block"
 		 * should be overridden by subclasses with buffering */
@@ -79,7 +79,7 @@ namespace stduino {
 		size_t print(const charT_ptr buffer, size_t size) { return write(buffer, size); }
 
 		size_t print(const_iterator begin, const_iterator end()) { return print(begin, end - begin); }
-		size_t print(const stdstring std_str) { return print(std_str.begin(), std_str.end()); }
+		size_t print(const BASE std_str) { return print(std_str.begin(), std_str.end()); }
 		size_t print(const String& s) { return print(s.c_str(), s.length()); }
 		size_t print(const charT_ptr c_str) { return c_str == NULL ? 0 : print(c_str, strlen(c_str)); }
 		size_t print(const __FlashStringHelper* ifsh) { return print(reinterpret_cast<const charT_ptr>(ifsh)); }
@@ -93,7 +93,7 @@ namespace stduino {
 		size_t println(const charT_ptr buffer, size_t size) { return print(buffer, size) + println(); }
 
 		size_t println(const_iterator begin, const_iterator end()) { return print(begin, end) + println(); }
-		size_t println(const stdstring std_str) { return print(std_str) + println(); }
+		size_t println(const BASE std_str) { return print(std_str) + println(); }
 		size_t println(const String& s) { return print(s) + println(); }
 		size_t println(const charT_ptr c_str) { return print(c_str) + println(); }
 		size_t println(const __FlashStringHelper* ifsh) { return print(ifsh) + println(); }
