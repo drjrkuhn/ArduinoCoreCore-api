@@ -44,7 +44,6 @@ namespace stduino {
 
 		using str_const_iterator = typename std::string::const_iterator;
 	public:
-
 		basic_Print() : write_error_(0) {}
 
 		int getWriteError() { return write_error_; }
