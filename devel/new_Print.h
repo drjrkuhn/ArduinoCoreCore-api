@@ -24,17 +24,13 @@
 //#include <stdio.h> // for size_t
 #include <string> // for char_traits
 #include <iterator>	// for char iterators
+#include <limits>
 
 #include "String_helpers.h"
 #include "new_String.h"
 #include "new_Printable.h"
 
 namespace stduino {
-
-	template <typename charT, typename traits = std::char_traits<charT> >
-	class basic_Printstream : public std::basic_streambuf<chartT, traits> {
-
-	};
 
 	/**
 	 * Character based output class with an internal streambuf class.
@@ -46,22 +42,17 @@ namespace stduino {
 	protected:
 		void setWriteError(int err = 1) { write_error_ = err; }
 		
-		std::streambuf& streambuf_;
 		using STDSTR = typename std::basic_string<charT, traits>;
 		using str_const_iterator = typename STDSTR::const_iterator;
 	public:
 
-		basic_Print(std::basic_streambuf<charT, traits> buf)
-			: write_error_(0), streambuf_(buf) {}
-		basic_Print() : write_error_(0), streambuf_(NOBUF) {}
+		basic_Print() : write_error_(0) {}
 
 		int getWriteError() { return write_error_; }
 		void clearWriteError() { setWriteError(0); }
 
 		/** Write a single byte. Must override in implementing class. */
-		virtual size_t write(const uint8_t c) {
-			streambuf_.sputc(c);
-		}
+		virtual size_t write(const uint8_t c) = 0;
 
 		/** Write multiple bytes. May override in implementing class. */
 		virtual size_t write(const uint8_t* buffer, size_t size) {
@@ -130,7 +121,101 @@ namespace stduino {
 		int write_error_;
 	};
 
+	/**
+	 * Adapts a std::ostream for printing single characters at a time.
+	 * 
+	 * This version only uses the single-byte 'write' function of Print
+	 * to write to the std::ostream.
+	 */
+	template <typename charT,typename traits = std::char_traits<charT> >
+	class basic_Print_ocharstream : public basic_Print<charT, traits> {
+	public:
+		using stdostream = std::basic_ostream<charT, traits>;
+		basic_Print_ocharstream(stdostream& os) : ostream_(os) {}
+		stdostream& ostream() { return ostream_; }
+
+		/// write a single byte
+		virtual size_t write(const uint8_t c) override {
+			ostream_.put(static_cast<const char>(c));
+			return ostream_.good() ? 1 : 0;
+		}
+		/// import other versions of write
+		using basic_Print<charT, traits>::write;
+
+		/// number of bytes available in write buffer - "infinite" in theory for ostreams
+		virtual int availableForWrite() override {	return std::numeric_limits<int>::max(); }
+
+		template<typename T>
+		stdostream& operator<< (T t) { return ostream() << t; }
+	protected:
+		stdostream& ostream_;
+	};
+
+	/**
+	 * Adapts a std::ostream for printing.
+	 * 
+	 * This version overrides both the single-byte 'write' and the
+	 * multi-byte 'write' functions of Print to write to the std::ostream.
+	 */
+	template <typename charT, typename traits = std::char_traits<charT> >
+	class basic_Print_ostream : public basic_Print<charT, traits> {
+	public:
+		using stdostream = std::basic_ostream<charT, traits>;
+		basic_Print_ostream(stdostream& os) : ostream_(os) {}
+		stdostream& ostream() { return ostream_; }
+
+		/// write a single byte
+		virtual size_t write(const uint8_t c) override {
+			ostream_.put(static_cast<const char>(c));
+			return ostream_.good() ? 1 : 0;
+		}
+		/// write multible bytes
+		virtual size_t write(const uint8_t* str, size_t n) override {
+			auto first = ostream_.tellp();
+			ostream_.write(reinterpret_cast<const char*>(str), n);
+			return ostream_.good() ? n : ostream_.tellp() - first;
+		}
+		/// import other versions of write
+		using basic_Print<charT, traits>::write;
+
+		/// number of bytes available in write buffer - "infinite" in theory for ostreams
+		virtual int availableForWrite() override { return std::numeric_limits<int>::max(); }
+
+		template<typename T>
+		stdostream& operator<< (T t) { return ostream() << t; }
+	protected:
+		stdostream& ostream_;
+	};
+
+	/**
+	 * Adapts a std::ostringstream for printing to strings.
+	 *
+	 * This version keeps an internal stringstream/stringbuf
+	 * as its stream. Access the current contents with @see str().
+	 * Clear the buffer with @see clear().
+	 */
+	template <typename charT, typename traits = std::char_traits<charT> >
+	class basic_Print_string : public basic_Print_ostream<charT, traits> {
+	public:
+		basic_Print_string(const std::string str) 
+			: oss_(str, std::ios_base::out | std::ios_base::app), basic_Print_ostream(oss_) {
+			// NOTE: open in append mode so we don't overwrite the intiial value
+		}
+		basic_Print_string() 
+			: oss_(std::ios_base::out | std::ios_base::app), basic_Print_ostream(oss_) {
+			// NOTE: open in append mode so we don't overwrite current contents
+		}
+		std::string str() const { return oss_.str(); }
+		void str(const std::string s) { oss_.str(s); }
+		void clear() { oss_.str(""); oss_.clear(); }
+	protected:
+		std::ostringstream oss_;
+	};
+
 	using Print = basic_Print<char>;
+	using Print_ocharstream = basic_Print_ocharstream<char>;
+	using Print_ostream = basic_Print_ostream<char>;
+	using Print_string = basic_Print_string<char>;
 
 } // namespace
 
@@ -142,35 +227,60 @@ namespace stduino {
 TEST_SUITE("[new_Print.h]") {
 	using namespace stduino;
 
-	struct StringPrint : public Print, public String {
-		StringPrint() : String("") {}
-		StringPrint(const char* c_str) : String(c_str) {}
-		virtual size_t write(const uint8_t c) { return String::concat(c) ? 1 : 0; }
-		using Print::write;
-		//using String::operator=;
-	};
+	TEST_CASE("Print_ocharstream") {
+		std::ostringstream ss;
+		Print_ocharstream lhs(ss);
+		ss << "hello";
+		CHECK(lhs.write(' ') == 1);
+		CHECK(lhs.write("world", 5) == 5);
+		CHECK(ss.str() == "hello world");
+	}
+
+	TEST_CASE("Print_ostream") {
+		std::ostringstream ss;
+		ss << "hello";
+		Print_ostream lhs(ss);
+		CHECK(lhs.write(' ') == 1);
+		CHECK(lhs.write("world", 5) == 5);
+		CHECK(ss.str() == "hello world");
+	}
+
+	TEST_CASE("Print_string") {
+		Print_string lhs("hello");
+		CHECK(lhs.print(' ') == 1);
+		CHECK(lhs.print("world", 5) == 5);
+		CHECK(lhs.str() == "hello world");
+		lhs.str("goodbye ");
+		CHECK(lhs.str() == "goodbye ");
+		CHECK(lhs.print("world") == 5);
+		CHECK(lhs.str() == "goodbye world");
+		lhs.clear();
+		CHECK(lhs.str().empty());
+		lhs << "aaa ";
+		CHECK(lhs.str() == "aaa ");
+		lhs << 100;
+		CHECK(lhs.str() == "aaa 100");
+	}
 
 	TEST_CASE_TEMPLATE("write chars", C, char, unsigned char) {
-		StringPrint p;
+		Print_string p;
 		CHECK(p.write(C('c')) == 1);
-		CHECK(p == "c");
+		CHECK(p.str() == "c");
 	}
 	TEST_CASE("write") {
-		String world("world");
-		std::basic_string<char> stdworld("world");
-		StringPrint lhs = "hello ";
-		lhs.write(reinterpret_cast<uint8_t*>("world"), 5);
-		CHECK(lhs == "hello world");
-		lhs = "hello ";
-		lhs.write("world", 5);
-		CHECK(lhs == "hello world");
-		lhs = "hello ";
-		lhs.write(stdworld.begin(), stdworld.end());
-		CHECK(lhs == "hello world");
-		lhs = "hello ";
-		lhs.write(world.c_str(), world.length());
-		CHECK(lhs == "hello world");
-
+		Print_string lhs;
+		CHECK(lhs.write(static_cast<unsigned char>('h')) == 1);
+		CHECK(lhs.write('e') == 1);
+		CHECK(lhs.write(reinterpret_cast<uint8_t*>("llo "), 4) == 4);
+		CHECK(lhs.write("world", 5) == 5);
+		CHECK(lhs.str() == "hello world");
+		lhs.str("goodbye ");
+		CHECK(lhs.str() == "goodbye ");
+		std::string world("world");
+		CHECK(lhs.write(world.begin(), world.end()) == 5);
+		CHECK(lhs.str() == "goodbye world");
+	}
+	TEST_CASE("assignment") {
 		//lhs.clear();
 		//CHECK((lhs = other) == "other");
 		//CHECK((lhs = stdother) == "stdother");

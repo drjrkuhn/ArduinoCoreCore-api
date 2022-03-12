@@ -2,9 +2,9 @@
 #include <doctest/doctest.h>
 
 /* PULL TESTS from headers */
-//#define DOCTEST_STRING_HELPERS	1
-#define DOCTEST_NEW_STRING	1
-#define DOCTEST_NEW_PRINT	1
+//#define DOCTEST_STRING_HELPERS
+//#define DOCTEST_NEW_STRING
+#define DOCTEST_NEW_PRINT
 
 #include "String_helpers.h"
 #include "new_String.h"

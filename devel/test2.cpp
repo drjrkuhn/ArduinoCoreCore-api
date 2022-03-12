@@ -145,91 +145,175 @@ int main(int argc, char* argv[])
 
 using namespace std;
 
-class stream_base {
+
+//template<class SB>
+//class empty_adapter : public stream_base {
+//public:
+//	empty_adapter(SB) {}
+//};
+//
+//template<class SB>
+//class streambuf_putc_adapter : public stream_base {
+//public:
+//	SB& sbuf_;
+//	streambuf_putc_adapter(SB& b) : sbuf_(b) {}
+//
+//	virtual size_t write(char c) override {
+//		return sbuf_.sputc(c) == c ? 1 : 0;
+//	}
+//	virtual size_t write(const char* str, size_t n) override {
+//		if (s == nullptr) return 0;
+//		size_t nout = 0;
+//		while (n--) {
+//			if (write(*s++)) nout++;
+//			else break;
+//		}
+//		return nout;
+//	}
+//};
+//
+//template<class SB>
+//class streambuf_putn_adapter : public stream_base {
+//public:
+//	SB& sbuf_;
+//	streambuf_putn_adapter(SB& b) : sbuf_(b) {}
+//
+//	virtual size_t write(char c) override {
+//		return sbuf_.sputc(c) == c ? 1 : 0;
+//	}
+//	virtual size_t write(const char* str, size_t n) override {
+//		return sbuf_.sputn(str, n);
+//	}
+//};
+//
+//template <class ADAPT, class SB>
+//class print : public ADAPT<SB> {
+//protected:
+//public:
+//	print() : ADAPT() { }
+//	print(SB& s) : ADAPT(s) { }
+//
+//	using ADAPT::write;
+//};
+//
+//class myprint : public print<streambuf_putn_adapter,stringbuf> {
+//protected:
+//public:
+//	myprint() : print(), sbuf_() {
+//	}
+//	virtual size_t write(char c) override {
+//		return sbuf_.sputc(c) == c ? 1 : 0;
+//	}
+//	virtual size_t write(char* s, size_t n) override {
+//		return sbuf_.sputn(s, n);
+//	}
+//
+//	std::string str() {
+//		return sbuf_.str();
+//	}
+//};
+
+
+//class streambuf_base : public streambuf {
+//public:
+//	streambuf_base(stream_base& base) : sbase_(base) {}
+//protected:
+//	stream_base& sbase_;
+//	virtual streamsize xsputn(const char* buffer, streamsize size) override {
+//		if (buffer == NULL) return 0;
+//		size_t n = 0;
+//		while (size--) { if (sbase_.write(*buffer++)) n++;	else break; }
+//		return n;
+//	}
+//	virtual streamsize xsgetn(char* buffer, streamsize size) override {
+//		size_t count = 0;
+//		while (sbase_.available() > 0) {
+//			int c = sbase_.read();
+//			if (c < 0) break;
+//			*buffer++ = (char)c;
+//			count++;
+//		}
+//		return count;
+//	}
+//};
+
+class print_base {
 public:
 	virtual size_t write(char c) = 0;
-	virtual int available() { return 0; }
-	virtual int read() { return 0; }
-	virtual int peek() { return 0; }
+	virtual size_t write(const char* str, size_t n) {
+		//if (str == nullptr) return 0;
+		//size_t nout = 0;
+		//while (n--) {
+		//	if (write(*str++)) nout++;
+		//	else break;
+		//}
+		//return nout;
+		auto last = find_if(str, str + n, [this](char c) { return write(c) != 1; });
+		return last - str;
+	}
+	size_t print(const char c) {
+		return write(c);
+	}
+	size_t print(const char* str) {
+		return write(str, strlen(str));
+	}
 };
 
-class streambuf_adapter : public streambuf {
+class print_putstream : public print_base {
 public:
-	stream_base* printer_;
-	streambuf_adapter(stream_base* printer) : printer_(printer) { }
-	streambuf_adapter() : printer_(NULL) {}
-	void setBase(stream_base* p) { printer_ = p; }
-
-	virtual streamsize xsputn(const char* buffer, streamsize size) {
-		if (buffer == NULL) return 0;
-		size_t n = 0;
-		while (size--) {
-			if (printer_->write(*buffer++)) n++;
-			else break;
-		}
-		return n;
-	}
-	virtual streamsize xsgetn(char* buffer, streamsize size) {
-		size_t count = 0;
-		while (printer_->available() > 0) {
-			int c = printer_->read();
-			if (c < 0) break;
-			*buffer++ = (char)c;
-			count++;
-		}
-		return count;
-	}
-};
-
-class print : public stream_base {
+	print_putstream(ostream& os) : ostream_(os) {}
 protected:
-	streambuf* streambuf_;
-public:
-	print() : streambuf_(NULL) { }
-	void setBuffer(streambuf* buf) {
-		streambuf_ = buf;
+	virtual size_t write(char c) override {
+		ostream_.put(c);
+		return ostream_.good() ? 1 : 0;
 	}
-
-	virtual size_t write(char c) {
-		return streambuf_->sputc(c);
-	}
-	virtual size_t write(char* s, size_t n) {
-		if (s == nullptr) return 0;
-		size_t nout = 0;
-		while (n--) {
-			if (write(*s++)) nout++;
-			else break;
-		}
-		return nout;
-	}
+	ostream& ostream_;
 };
 
-class myprint : public print {
-protected:
-	stringbuf sbuf_;
-	streambuf_adapter adapt_;
+class print_writestream : public print_base {
 public:
-	myprint() 
-		: print(), sbuf_() {
-		adapt_.setBase(this);
-		this->setBuffer(&adapt_);
+	print_writestream(ostream& os) : ostream_(os) {}
+protected:
+	virtual size_t write(char c) override {
+		ostream_.put(c);	
+		return ostream_.good() ? 1 : 0;
 	}
-	using print::write;
-
-	std::string str() {
-		return sbuf_.str();
+	virtual size_t write(const char* str, size_t n) {
+		auto first = ostream_.tellp();
+		ostream_.write(str, n);
+		auto last = ostream_.tellp();
+		size_t written = last - first;
+		return written;
+		//return os_.good() ? n : written;
 	}
+	ostream& ostream_;
 };
 
 int main(int argc, char* argv[])
 {
 	using namespace std;
 
-	myprint pout;
-	pout.write('h');
-	pout.write("ello", 4);
 
-	cout << pout.str() << endl;
+	ostringstream ssout("");
+
+	print_putstream pprint(ssout);
+	assert(pprint.print('h') == 1);
+	assert(pprint.print("ello") == 4);
+
+	cout << ssout.str() << endl;
+
+	ssout.str("");
+	ssout.clear();
+
+	print_writestream wprint(ssout);
+	assert(wprint.print('w') == 1);
+	assert(wprint.print("orld") == 4);
+	assert(wprint.print("\r\n") == 2);
+	char* bigmsg = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ullamcorper eget nulla facilisi etiam. Viverra orci sagittis eu volutpat. Pulvinar neque laoreet suspendisse interdum consectetur libero id faucibus nisl. Ac turpis egestas sed tempus urna et pharetra pharetra. Leo in vitae turpis massa sed elementum. At risus viverra adipiscing at in tellus. Tempor commodo ullamcorper a lacus vestibulum sed arcu non odio. Vulputate dignissim suspendisse in est ante in. Est pellentesque elit ullamcorper dignissim cras. Commodo elit at imperdiet dui accumsan. Aliquam nulla facilisi cras fermentum odio eu. In egestas erat imperdiet sed euismod nisi. Cursus in hac habitasse platea dictumst quisque sagittis purus sit.";
+	size_t biglen = strlen(bigmsg);
+	assert(wprint.print(bigmsg) == biglen);
+
+	cout << ssout.str() << endl;
 
 	return 0;
 }
