@@ -227,7 +227,7 @@ namespace stduino {
 
 } // namespace
 
-#if 1 || defined(DOCTEST_LIBRARY_INCLUDED) && defined(DOCTEST_NEW_PRINT)
+#if defined(DOCTEST_LIBRARY_INCLUDED) && defined(DOCTEST_NEW_PRINT)
 #include <iostream>
 #include <doctest/doctest.h>
 #include "new_String.h"

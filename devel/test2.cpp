@@ -141,101 +141,9 @@ int main(int argc, char* argv[])
 
 #endif
 
-#if 1
+#if 0
 
 using namespace std;
-
-
-//template<class SB>
-//class empty_adapter : public stream_base {
-//public:
-//	empty_adapter(SB) {}
-//};
-//
-//template<class SB>
-//class streambuf_putc_adapter : public stream_base {
-//public:
-//	SB& sbuf_;
-//	streambuf_putc_adapter(SB& b) : sbuf_(b) {}
-//
-//	virtual size_t write(char c) override {
-//		return sbuf_.sputc(c) == c ? 1 : 0;
-//	}
-//	virtual size_t write(const char* str, size_t n) override {
-//		if (s == nullptr) return 0;
-//		size_t nout = 0;
-//		while (n--) {
-//			if (write(*s++)) nout++;
-//			else break;
-//		}
-//		return nout;
-//	}
-//};
-//
-//template<class SB>
-//class streambuf_putn_adapter : public stream_base {
-//public:
-//	SB& sbuf_;
-//	streambuf_putn_adapter(SB& b) : sbuf_(b) {}
-//
-//	virtual size_t write(char c) override {
-//		return sbuf_.sputc(c) == c ? 1 : 0;
-//	}
-//	virtual size_t write(const char* str, size_t n) override {
-//		return sbuf_.sputn(str, n);
-//	}
-//};
-//
-//template <class ADAPT, class SB>
-//class print : public ADAPT<SB> {
-//protected:
-//public:
-//	print() : ADAPT() { }
-//	print(SB& s) : ADAPT(s) { }
-//
-//	using ADAPT::write;
-//};
-//
-//class myprint : public print<streambuf_putn_adapter,stringbuf> {
-//protected:
-//public:
-//	myprint() : print(), sbuf_() {
-//	}
-//	virtual size_t write(char c) override {
-//		return sbuf_.sputc(c) == c ? 1 : 0;
-//	}
-//	virtual size_t write(char* s, size_t n) override {
-//		return sbuf_.sputn(s, n);
-//	}
-//
-//	std::string str() {
-//		return sbuf_.str();
-//	}
-//};
-
-
-//class streambuf_base : public streambuf {
-//public:
-//	streambuf_base(stream_base& base) : sbase_(base) {}
-//protected:
-//	stream_base& sbase_;
-//	virtual streamsize xsputn(const char* buffer, streamsize size) override {
-//		if (buffer == NULL) return 0;
-//		size_t n = 0;
-//		while (size--) { if (sbase_.write(*buffer++)) n++;	else break; }
-//		return n;
-//	}
-//	virtual streamsize xsgetn(char* buffer, streamsize size) override {
-//		size_t count = 0;
-//		while (sbase_.available() > 0) {
-//			int c = sbase_.read();
-//			if (c < 0) break;
-//			*buffer++ = (char)c;
-//			count++;
-//		}
-//		return count;
-//	}
-//};
 
 class print_base {
 public:
@@ -316,5 +224,21 @@ int main(int argc, char* argv[])
 	cout << ssout.str() << endl;
 
 	return 0;
+}
+#endif
+
+#if 1
+#include "new_time.h"
+
+int main(int argc, char* argv[])
+{
+	using namespace std;
+
+	unsigned long start = millis();
+	delay(100);
+	unsigned long end = millis();
+	cout << "start ms " << start << endl;
+	cout << "end ms " << end << endl;
+	cout << "difference " << end - start << endl;
 }
 #endif

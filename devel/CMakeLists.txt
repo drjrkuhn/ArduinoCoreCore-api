@@ -1,10 +1,10 @@
 add_executable(Test1 "test1.cpp" "String_helpers.h") # "new_Print.h" "new_Printable.h")
 set_property(TARGET Test1 PROPERTY CMAKE_CXX_STANDARD 14)
 
-add_executable(Test2 "test2.cpp")
+add_executable(Test2 "test2.cpp" "new_time.h")
 set_property(TARGET Test2 PROPERTY CMAKE_CXX_STANDARD 14)
 
-add_executable(dtest "dtest_main.cpp" "String_helpers.h" "new_String.h" "new_Printable.h" "new_Print.h")
+add_executable(dtest "dtest_main.cpp" "String_helpers.h" "new_String.h" "new_Printable.h" "new_Print.h" "new_Stream.h")
 set_property(TARGET dtest PROPERTY CXX_STANDARD 14)
 #set_property(TARGET dtest PROPERTY CXX_STANDARD_REQUIRED ON)
 
