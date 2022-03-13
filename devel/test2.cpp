@@ -234,11 +234,32 @@ int main(int argc, char* argv[])
 {
 	using namespace std;
 
-	unsigned long start = millis();
-	delay(100);
-	unsigned long end = millis();
+	unsigned long start = systime::millis();
+	systime::delay(1);
+	unsigned long end = systime::millis();
 	cout << "start ms " << start << endl;
 	cout << "end ms " << end << endl;
 	cout << "difference " << end - start << endl;
+
+	start = systime::micros();
+	systime::delayMicroseconds(1'000);
+	end = systime::micros();
+	cout << "start us " << start << endl;
+	cout << "end us " << end << endl;
+	cout << "difference " << end - start << endl;
+
+	const int N = 200;
+	const unsigned long delayms = 20;
+	std::this_thread::yield();
+	start = systime::millis();
+	for (int i = 0; i < N; i++) {
+		systime::delay(delayms);
+	}
+	end = systime::millis();
+	double avg = (end - start) / double(N);
+	cout << N << " delays of " << delayms << " ms = " << (N*delayms) << " total ms" << endl;
+	cout << "actual " << (end - start) << " ms total" << endl;
+	cout << "average of " << avg << " ms per delay" << endl;
+
 }
 #endif
