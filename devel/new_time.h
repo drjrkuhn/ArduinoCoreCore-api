@@ -1,7 +1,7 @@
 #pragma once
 
-#include <chrono>
-#include <thread>
+#include <boost/chrono.hpp>
+#include <boost/thread.hpp>
 
 /*
  * NOTE std::this_thread::delay is VERY inaccurate in Windows.
@@ -10,30 +10,32 @@
  * 
  * Should probably switch to boost::threads
  */
-template <typename CLOCK, typename TP=std::chrono::time_point<CLOCK>>
+template <typename CLOCK, typename TP=boost::chrono::time_point<CLOCK>>
 struct time_helper {
 	using time_point = TP;
 	static time_point start;
 	static time_point now() { return CLOCK::now(); }
 };
 
-template <typename CLOCK, typename TP = std::chrono::time_point<CLOCK>>
+template <typename CLOCK, typename TP = boost::chrono::time_point<CLOCK>>
 TP time_helper<CLOCK, TP>::start = time_helper<CLOCK, TP>::now();
 
-struct systime : public time_helper<std::chrono::steady_clock> {
+struct systime : public time_helper<boost::chrono::steady_clock> {
 	static unsigned int millis() {
-		return std::chrono::duration_cast<std::chrono::milliseconds>(now() - start).count();
+		return boost::chrono::duration_cast<boost::chrono::milliseconds>(now() - start).count();
 	}
 	static unsigned int micros() {
-		return std::chrono::duration_cast<std::chrono::microseconds>(now() - start).count();
+		return boost::chrono::duration_cast<boost::chrono::microseconds>(now() - start).count();
 	}
 	static void delay(unsigned long ms) {
-		//std::this_thread::yield();
-		std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+		//timeval tv;
+		//tv.tv_sec = ms / 1000;
+		//tv.tv_usec = ms % 1000;
+		//select(0, NULL, NULL, NULL, &tv);
+		boost::this_thread::sleep_for(boost::chrono::milliseconds(ms));
 	}
 	static void delayMicroseconds(unsigned int us) {
-		//std::this_thread::yield();
-		std::this_thread::sleep_for(std::chrono::microseconds(us));
+		boost::this_thread::sleep_for(boost::chrono::microseconds(us));
 	}
 };
 

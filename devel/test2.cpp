@@ -235,22 +235,21 @@ int main(int argc, char* argv[])
 	using namespace std;
 
 	unsigned long start = systime::millis();
-	systime::delay(1);
+	systime::delay(50);
 	unsigned long end = systime::millis();
 	cout << "start ms " << start << endl;
 	cout << "end ms " << end << endl;
 	cout << "difference " << end - start << endl;
 
 	start = systime::micros();
-	systime::delayMicroseconds(1'000);
+	systime::delayMicroseconds(50'000);
 	end = systime::micros();
 	cout << "start us " << start << endl;
 	cout << "end us " << end << endl;
 	cout << "difference " << end - start << endl;
 
-	const int N = 200;
-	const unsigned long delayms = 20;
-	std::this_thread::yield();
+	const int N = 100;
+	const unsigned long delayms = 50;
 	start = systime::millis();
 	for (int i = 0; i < N; i++) {
 		systime::delay(delayms);

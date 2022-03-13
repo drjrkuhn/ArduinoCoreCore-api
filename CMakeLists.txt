@@ -4,6 +4,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 project(StandarduinoCore)
 
 find_package(doctest CONFIG REQUIRED)
+find_package(Boost 1.77 REQUIRED COMPONENTS thread chrono)
 include("${doctest_DIR}/doctest.cmake")
 
 add_subdirectory(devel)

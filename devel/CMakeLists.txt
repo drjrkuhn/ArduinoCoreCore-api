@@ -3,6 +3,8 @@ set_property(TARGET Test1 PROPERTY CMAKE_CXX_STANDARD 14)
 
 add_executable(Test2 "test2.cpp" "new_time.h")
 set_property(TARGET Test2 PROPERTY CMAKE_CXX_STANDARD 14)
+target_link_libraries(Test2 PRIVATE Boost::thread Boost::chrono)
+
 
 add_executable(dtest "dtest_main.cpp" "String_helpers.h" "new_String.h" "new_Printable.h" "new_Print.h" "new_Stream.h")
 set_property(TARGET dtest PROPERTY CXX_STANDARD 14)
