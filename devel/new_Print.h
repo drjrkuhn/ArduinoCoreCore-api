@@ -132,13 +132,13 @@ namespace stduino {
 	public:
 		using stdostream = std::basic_ostream<charT, traits>;
 		using Print = basic_Print<charT, traits>;
-		basic_Print_ocharstream(stdostream& os) : ostream_(os) {}
-		stdostream& ostream() { return ostream_; }
+		basic_Print_ocharstream(stdostream& os) : _ostream(os) {}
+		stdostream& ostream() { return _ostream; }
 
 		/// write a single byte
 		virtual size_t write(const uint8_t c) override {
-			ostream_.put(static_cast<const char>(c));
-			return ostream_.good() ? 1 : 0;
+			_ostream.put(static_cast<const char>(c));
+			return _ostream.good() ? 1 : 0;
 		}
 		using Print::write;
 		using Print::availableForWrite;
@@ -152,7 +152,7 @@ namespace stduino {
 		template<typename T>
 		stdostream& operator<< (T t) { return ostream() << t; }
 	protected:
-		stdostream& ostream_;
+		stdostream& _ostream;
 	};
 
 	/**
@@ -166,19 +166,19 @@ namespace stduino {
 	public:
 		using stdostream = std::basic_ostream<charT, traits>;
 		using Print = basic_Print<charT, traits>;
-		basic_Print_ostream(stdostream& os) : ostream_(os) {}
-		stdostream& ostream() { return ostream_; }
+		basic_Print_ostream(stdostream& os) : _ostream(os) {}
+		stdostream& ostream() { return _ostream; }
 
 		/// write a single byte
 		virtual size_t write(const uint8_t c) override {
-			ostream_.put(static_cast<const char>(c));
-			return ostream_.good() ? 1 : 0;
+			_ostream.put(static_cast<const char>(c));
+			return _ostream.good() ? 1 : 0;
 		}
 		/// write multible bytes
 		virtual size_t write(const uint8_t* str, size_t n) override {
-			auto first = ostream_.tellp();
-			ostream_.write(reinterpret_cast<const char*>(str), n);
-			return ostream_.good() ? n : ostream_.tellp() - first;
+			auto first = _ostream.tellp();
+			_ostream.write(reinterpret_cast<const char*>(str), n);
+			return _ostream.good() ? n : _ostream.tellp() - first;
 		}
 		using Print::write;
 		using Print::availableForWrite;
@@ -192,7 +192,7 @@ namespace stduino {
 		template<typename T>
 		stdostream& operator<< (T t) { return ostream() << t; }
 	protected:
-		stdostream& ostream_;
+		stdostream& _ostream;
 	};
 
 	/**
@@ -206,18 +206,18 @@ namespace stduino {
 	class basic_Print_string : public basic_Print_ostream<charT, traits> {
 	public:
 		basic_Print_string(const std::string str)
-			: oss_(str, std::ios_base::out | std::ios_base::app), basic_Print_ostream<charT,traits>(oss_) {
+			: _oss(str, std::ios_base::out | std::ios_base::app), basic_Print_ostream<charT,traits>(_oss) {
 			// NOTE: open in append mode so we don't overwrite the intiial value
 		}
 		basic_Print_string()
-			: oss_(std::ios_base::out | std::ios_base::app), basic_Print_ostream<charT,traits>(oss_) {
+			: _oss(std::ios_base::out | std::ios_base::app), basic_Print_ostream<charT,traits>(_oss) {
 			// NOTE: open in append mode so we don't overwrite current contents
 		}
-		std::string str() const { return oss_.str(); }
-		void str(const std::string s) { oss_.str(s); }
-		void clear() { oss_.str(""); oss_.clear(); }
+		std::string str() const { return _oss.str(); }
+		void str(const std::string s) { _oss.str(s); }
+		void clear() { _oss.str(""); _oss.clear(); }
 	protected:
-		std::ostringstream oss_;
+		std::ostringstream _oss;
 	};
 
 	using Print = basic_Print<char>;
