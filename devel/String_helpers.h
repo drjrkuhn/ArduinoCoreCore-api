@@ -14,39 +14,43 @@ namespace stduino {
 
 	class __FlashStringHelper;
 
-	// alias for std::basic_string<T> used below
-	template<typename charT, typename traits = std::char_traits<charT>>
-	using BASE = std::basic_string<charT>;
+	// // alias for std::basic_string<T> used below
+	// template<typename charT, typename traits = std::char_traits<charT>>
+	// using BASE = std::basic_string<charT>;
 
-	// New type traits
-	template <typename T, typename... Ts>
-	constexpr bool is_any_v = std::disjunction<std::is_same<T, Ts>...>::value;
+	// // New type traits
+	// template <typename T, typename... Ts>
+	// constexpr bool is_any_v = std::disjunction<std::is_same_v<T, Ts>...>::value;
+	// //struct is_any : std::bool_constant<(std::is_same_v<T, Ts> || ...)> {};
 
 #define SU_CHARACTERS			char, unsigned char
 #define SU_CHARACTER_PTRS		char*, unsigned char*, __FlashStringHelper*
 #define SU_SIGNED_INTEGRALS		short, int, long, long long
-#define SU_UNSIGNED_INTEGRALS	unsigned short, unsigned int, unsigned long,  unsigned long long
+#define SU_UNSIGNED_INTEGRALS	unsigned short, unsigned int, unsigned long, unsigned long long
 #define SU_INTEGRALS			SU_SIGNED_INTEGRALS, SU_UNSIGNED_INTEGRALS
 #define SU_FLOATS				float, double, long double
 #define SU_BASIC_TYPES			SU_CHARACTERS, SU_INTEGRALS, SU_FLOATS
 
 	template <typename T>
-	constexpr bool is_character_v = is_any_v<T, SU_CHARACTERS>;
+	constexpr bool is_character_v = std::is_same<T,char>::value || std::is_same<T,unsigned char>::value;
+	// constexpr bool is_character_v = is_any<T, SU_CHARACTERS >::value;
 
 	template <typename T>
-	constexpr bool is_character_ptr_v = is_any_v<T, SU_CHARACTER_PTRS>;
+	constexpr bool is_character_ptr_v = std::is_same<T,char*>::value || std::is_same<T,unsigned char*>::value || std::is_same<T,__FlashStringHelper*>::value;
+	// constexpr bool is_character_ptr_v = is_any<T, SU_CHARACTER_PTRS >::value;
 
 	template <typename T>
-	constexpr bool is_nonchar_integral_v = is_any_v<T, SU_INTEGRALS>;
+	constexpr bool is_nonchar_integral_v = std::is_integral<T>::value && !is_character_v<T>;
+	// constexpr bool is_nonchar_integral_v = is_any<T, SU_INTEGRALS >::value;
 
 	template <typename T>
-	constexpr bool is_nonchar_signed_integral_v = is_nonchar_integral_v<T> && std::is_signed_v<T>;
+	constexpr bool is_nonchar_signed_integral_v = is_nonchar_integral_v<T> && std::is_signed<T>::value;
 
 	template <typename T>
-	constexpr bool is_nonchar_unsigned_integral_v = is_nonchar_integral_v<T> && std::is_unsigned_v<T>;
+	constexpr bool is_nonchar_unsigned_integral_v = is_nonchar_integral_v<T> && std::is_unsigned<T>::value;
 
 	template <typename T>
-	constexpr bool is_nonchar_arithmetic_v = is_nonchar_integral_v<T> || std::is_floating_point_v<T>;
+	constexpr bool is_nonchar_arithmetic_v = is_nonchar_integral_v<T> || std::is_floating_point<T>::value;
 
 #ifdef ENABLE_CHAR_TO_STRING
 	template <typename T>
@@ -61,7 +65,7 @@ namespace stduino {
 	unsigned char baseOrPlaces() { return DEC; }
 
 	/** Floats default to 2 places after the decimal. */
-	template<typename numT, std::enable_if_t<std::is_floating_point_v<numT>, bool> = true>
+	template<typename numT, std::enable_if_t<std::is_floating_point<numT>::value, bool> = true>
 	unsigned char baseOrPlaces()
 	{
 		return 2;
@@ -79,7 +83,7 @@ namespace stduino {
 	 * Output should be the similar to the Arduino's Print.printNumber() function.
 	 */
 	template<typename charT, typename numT, typename std::enable_if_t<is_nonchar_unsigned_integral_v<numT>, bool> = true>
-	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char base = baseOrPlaces<numT>(), bool reversed = false)
+	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char base = ::stduino::baseOrPlaces<numT>(), bool reversed = false)
 	{
 		if (base < 2) base = 2;
 		// create the number string in reverse order by appending digits
@@ -106,7 +110,7 @@ namespace stduino {
 	template<typename charT, typename numT, typename std::enable_if_t<is_nonchar_signed_integral_v<numT>, bool> = true>
 	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char base = baseOrPlaces<numT>(), bool reversed = false)
 	{
-		using unsignedN = std::make_unsigned<numT>::type;
+		using unsignedN = typename std::make_unsigned<numT>::type;
 		constexpr bool KEEP_REVERSED = true;
 		size_t startlen = dest.length();
 
@@ -133,8 +137,8 @@ namespace stduino {
 	 * Output should be the similar to the Arduino's Print.printFloat(). It does not
 	 * print exponential notation.
 	 */
-	template<typename charT, typename numT, typename std::enable_if_t<std::is_floating_point_v<numT>, bool> = true>
-	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char decimalPlaces = baseOrPlaces<numT>())
+	template<typename charT, typename numT, typename std::enable_if_t<std::is_floating_point<numT>::value, bool> = true>
+	std::basic_string<charT>& appendNumber(std::basic_string<charT>& dest, numT number, unsigned char decimalPlaces = ::stduino::baseOrPlaces<numT>(), bool dummy = false)
 	{
 		if (decimalPlaces < 0)
 			decimalPlaces = 2;
@@ -185,7 +189,7 @@ namespace stduino {
 	 * Output should be the similar to the Arduino's Print.printNumber() function.
 	 */
 	template<typename charT, typename numT, typename std::enable_if_t<is_nonchar_arithmetic_v<numT>, bool> = true>
-	std::basic_string<charT> to_stdsstring(numT number, unsigned char baseOrPlaces = baseOrPlaces<numT>())
+	std::basic_string<charT> to_stdsstring(numT number, unsigned char baseOrPlaces =::stduino::baseOrPlaces<numT>())
 	{
 		std::basic_string<charT> res;
 		return appendNumber(res, number, baseOrPlaces);

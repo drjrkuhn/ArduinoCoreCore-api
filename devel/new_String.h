@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <cctype>
 
 #include "String_helpers.h"
 
@@ -39,7 +40,7 @@ namespace stduino {
 		explicit basic_String(const basic_String<charT, traits>& other) : BASE(other) {}
 #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__) || _MSVC_LANG >= 201402L
 		// move constructor
-		explicit basic_String(basic_String&& other) : BASE(std::move(other)) { };
+		explicit basic_String(basic_String&& other) : BASE(std::move(other)) { other = ""; };
 #endif
 		// Character constructors
 		template <typename T, std::enable_if_t< is_character_v<T>, bool> = true>
@@ -53,7 +54,7 @@ namespace stduino {
 		}
 
 		// destructor
-		~basic_String(void) { BASE::~BASE(); }
+		~basic_String(void) {}
 
 		// memory management
 		// return true on success, false on failure (in which case, the string
@@ -64,13 +65,13 @@ namespace stduino {
 		unsigned int length(void) const { return static_cast<unsigned int>(BASE::length()); }
 
 		// copy assignment operators
-		basic_String& operator= (BASE const& rhs) { assign(rhs); return *this; }
-		basic_String& operator= (const charT* c_str) { assign(c_str); return *this; }
-		basic_String& operator= (const __FlashStringHelper* f_str) { assign(reinterpret_cast<const charT*>(f_str)); return *this; }
-		basic_String& operator= (const basic_String& other) { assign(other); return *this; }
+		basic_String& operator= (BASE const& rhs) { this->assign(rhs); return *this; }
+		basic_String& operator= (const charT* c_str) { this->assign(c_str); return *this; }
+		basic_String& operator= (const __FlashStringHelper* f_str) { this->assign(reinterpret_cast<const charT*>(f_str)); return *this; }
+		basic_String& operator= (const basic_String& other) { this->assign(other); return *this; }
 #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__) || _MSVC_LANG >= 201402L
 		// move assignment
-		basic_String& operator= (basic_String&& other) { assign(std::move(other)); return *this; }
+		basic_String& operator= (basic_String&& other) { this->assign(std::move(other)); return *this; }
 #endif
 
 		// iterators from std::basic_string
@@ -82,6 +83,7 @@ namespace stduino {
 		using BASE::rend;
 		using BASE::crbegin;
 		using BASE::crend;
+		using BASE::c_str;
 
 		// concatenate (works w/ built-in types)
 		bool concat(const basic_String& rhs) { BASE::append(rhs); return true; }
@@ -106,7 +108,7 @@ namespace stduino {
 		}
 		// append number
 		template <typename T, std::enable_if_t< is_nonchar_arithmetic_v<T>, bool> = true>
-		bool concat(const T number, unsigned char baseOrPlaces = baseOrPlaces<T>()) {
+		bool concat(const T number, unsigned char baseOrPlaces = ::stduino::baseOrPlaces<T>()) {
 			return concat(to_stdsstring<charT, T>(number, baseOrPlaces));
 		}
 
@@ -158,7 +160,7 @@ namespace stduino {
 
 		// character access
 		charT charAt(unsigned int index) const { return operator[](index); }
-		void setCharAt(unsigned int index, charT c) { operator[index] = c; }
+		void setCharAt(unsigned int index, charT c) { (*this)[index] = c; }
 		charT operator[] (unsigned int index) const {
 			if (index < 0 || index > length()) return 0;
 			return BASE::operator[](index);
@@ -225,17 +227,21 @@ namespace stduino {
 			BASE::erase(index, count);
 		}
 		void toLowerCase(void) {
-			std::transform(begin(), end(), begin(), std::tolower);
+			auto b = begin();
+			auto e = end();
+			auto fn = [](char c) -> char { return std::tolower(c);};
+			std::transform(b, e, e, fn);
+			// std::transform(begin(), end(), end(), [](char c) -> char {return std::tolower(c);});
 		}
 		void toUpperCase(void) {
-			std::transform(begin(), end(), begin(), std::toupper);
+			std::transform(begin(), end(), begin(), [](char c) -> char {return std::toupper(c);});
 		}
 		void trim(void) {
-			BASE::iterator left = std::find_if_not(begin(), end(), std::isspace);
+			typename BASE::iterator left = std::find_if_not(begin(), end(), [](char c) {return std::isspace(c);});
 			if (left != begin()) {
 				BASE::erase(begin(), left);
 			}
-			BASE::reverse_iterator right = std::find_if_not(rbegin(), rend(), std::isspace);
+			typename BASE::reverse_iterator right = std::find_if_not(rbegin(), rend(), [](char c) {return std::isspace(c);});
 			if (right != rbegin()) {
 				BASE::erase(right.base(), end());
 			}
@@ -278,6 +284,11 @@ TEST_SUITE("[new_String.h]") {
 		// copy constructor
 		CHECK(String(other) == "world");
 		CHECK(other == "world");
+		// move of standard string
+		std::string owner1("mine");
+		std::string owner2(std::move(owner1));
+		CHECK(owner2=="mine");
+		CHECK(owner1=="");
 		// move constructor
 		CHECK(String(std::move(other)) == "world");
 		CHECK(other == "");

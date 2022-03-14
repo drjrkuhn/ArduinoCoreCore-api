@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 	cout << "difference " << end - start << endl;
 
 	start = systime::micros();
-	systime::delayMicroseconds(50'000);
+	systime::delayMicroseconds(50000);
 	end = systime::micros();
 	cout << "start us " << start << endl;
 	cout << "end us " << end << endl;

@@ -151,10 +151,10 @@ int main(int argc, char* argv[])
 		space--;
 	}
 
-	std::stringstream ss;
-	ss << "Stringstream ";
-	appendNumber(ss.str(), 1234567890.0, 2);
-	cout << ss.str() << endl;
+	std::string ss;
+	ss = "std::string ";
+	appendNumber(ss, double(1234567890.0), 2);
+	cout << ss << endl;
 
 	return 0;
 }

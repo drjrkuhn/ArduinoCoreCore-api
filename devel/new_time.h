@@ -17,7 +17,7 @@ struct time_helper {
 	static time_point now() { return CLOCK::now(); }
 };
 
-template <typename CLOCK, typename TP = boost::chrono::time_point<CLOCK>>
+template <typename CLOCK, typename TP>
 TP time_helper<CLOCK, TP>::start = time_helper<CLOCK, TP>::now();
 
 struct systime : public time_helper<boost::chrono::steady_clock> {

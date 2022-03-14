@@ -96,7 +96,7 @@ namespace stduino {
 		size_t print(const __FlashStringHelper* f_str) { return print(reinterpret_cast<const charT*>(f_str)); }
 		size_t print(unsigned char b, int base = DEC) { return print<unsigned int>(b, base); }
 		template <typename T, std::enable_if_t< is_nonchar_arithmetic_v<T>, bool> = true>
-		size_t print(const T number, int baseOrPlaces = baseOrPlaces<T>()) {
+		size_t print(const T number, int baseOrPlaces = ::stduino::baseOrPlaces<T>()) {
 			return print(to_stdsstring<charT, T>(number, baseOrPlaces));
 		}
 		size_t print(const Printable& x) { return x.printTo(*this); }
@@ -111,7 +111,7 @@ namespace stduino {
 		size_t println(const __FlashStringHelper* f_str) { return println(reinterpret_cast<const charT*>(f_str)); }
 		size_t println(unsigned char b, int base = DEC) { return println<unsigned int>(b, base); }
 		template <typename T, std::enable_if_t< is_nonchar_arithmetic_v<T>, bool> = true>
-		size_t println(const T number, int baseOrPlaces = baseOrPlaces<T>()) {
+		size_t println(const T number, int baseOrPlaces = ::stduino::baseOrPlaces<T>()) {
 			return print(to_stdsstring<charT, T>(number, baseOrPlaces)) + println();
 		}
 		size_t println(const Printable& x) { return x.printTo(*this) + println(); }
@@ -206,11 +206,11 @@ namespace stduino {
 	class basic_Print_string : public basic_Print_ostream<charT, traits> {
 	public:
 		basic_Print_string(const std::string str)
-			: oss_(str, std::ios_base::out | std::ios_base::app), basic_Print_ostream(oss_) {
+			: oss_(str, std::ios_base::out | std::ios_base::app), basic_Print_ostream<charT,traits>(oss_) {
 			// NOTE: open in append mode so we don't overwrite the intiial value
 		}
 		basic_Print_string()
-			: oss_(std::ios_base::out | std::ios_base::app), basic_Print_ostream(oss_) {
+			: oss_(std::ios_base::out | std::ios_base::app), basic_Print_ostream<charT,traits>(oss_) {
 			// NOTE: open in append mode so we don't overwrite current contents
 		}
 		std::string str() const { return oss_.str(); }
@@ -292,7 +292,7 @@ TEST_SUITE("[new_Print.h]") {
 		CHECK(ps.availableForWrite() > 0);
 		CHECK(ps.write(static_cast<unsigned char>('h')) == 1);
 		CHECK(ps.write('e') == 1);
-		CHECK(ps.write(reinterpret_cast<uint8_t*>("llo "), 4) == 4);
+		CHECK(ps.write(reinterpret_cast<const uint8_t*>("llo "), 4) == 4);
 		CHECK(ps.write("world", 5) == 5);
 		CHECK(ps.str() == "hello world");
 		ps.str("goodbye ");
