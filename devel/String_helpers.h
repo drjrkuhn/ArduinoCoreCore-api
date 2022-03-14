@@ -14,15 +14,6 @@ namespace stduino {
 
 	class __FlashStringHelper;
 
-	// // alias for std::basic_string<T> used below
-	// template<typename charT, typename traits = std::char_traits<charT>>
-	// using BASE = std::basic_string<charT>;
-
-	// // New type traits
-	// template <typename T, typename... Ts>
-	// constexpr bool is_any_v = std::disjunction<std::is_same_v<T, Ts>...>::value;
-	// //struct is_any : std::bool_constant<(std::is_same_v<T, Ts> || ...)> {};
-
 #define SU_CHARACTERS			char, unsigned char
 #define SU_CHARACTER_PTRS		char*, unsigned char*, __FlashStringHelper*
 #define SU_SIGNED_INTEGRALS		short, int, long, long long

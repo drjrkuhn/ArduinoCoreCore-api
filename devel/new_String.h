@@ -29,11 +29,6 @@ namespace stduino {
 		using std_string = std::basic_string<charT, traits>;
 
 	public:
-		//using iterator = std::string::iterator;
-		//using const_iterator = std::string::const_iterator;
-		//using reverse_iterator = std::string::reverse_iterator;
-		//using const_reverse_iterator = std::string::const_reverse_iterator;
-
 		// string constructors
 		basic_String() : buffer_() {}
 		basic_String(const charT* c_str) : buffer_(c_str) {}
@@ -79,15 +74,6 @@ namespace stduino {
 		basic_String& operator= (basic_String&& other) { buffer_.assign(std::move(other.buffer_)); return *this; }
 #endif
 
-		// forward some calls to the std::string buffer_
-		//iterator begin() { return buffer_.begin(); }
-		//iterator end() { return buffer_.end(); }
-		//const_iterator cbegin() const { return buffer_.cbegin(); }
-		//const_iterator cend() const { return buffer_.cend(); }
-		//reverse_iterator rbegin() { return buffer_.rbegin(); }
-		//reverse_iterator rend() { return buffer_.rend(); }
-		//const_reverse_iterator crbegin() const { return buffer_.crbegin(); }
-		//const_reverse_iterator crend() const { return buffer_.crend(); }
 		const charT* c_str() const { return buffer_.c_str(); }
 		void clear() { return buffer_.clear(); }
 		// two ways to get a copy of the backing buffer as a std::string
@@ -132,19 +118,19 @@ namespace stduino {
 		}
 
 		// operator+ is a proxy for +=
-		template<typename charT, typename traits>
-		friend basic_String<charT, traits> operator+(const basic_String<charT, traits>& lhs, const basic_String<charT, traits>& rhs) {
-			basic_String<charT, traits> res(lhs);
+		template<typename C, typename R>
+		friend basic_String<C, R> operator+(const basic_String<C, R>& lhs, const basic_String<C, R>& rhs) {
+			basic_String<C, R> res(lhs);
 			return res += rhs;
 		}
-		template<typename charT, typename traits, typename T>
-		friend basic_String<charT, traits> operator+(const basic_String<charT, traits>& lhs, T rhs) {
-			basic_String<charT, traits> res(lhs);
+		template<typename C, typename R, typename T>
+		friend basic_String<C, R> operator+(const basic_String<C, R>& lhs, T rhs) {
+			basic_String<C, R> res(lhs);
 			return res += rhs;
 		}
-		template<typename charT, typename traits, typename T>
-		friend basic_String<charT, traits> operator+(T lhs, const basic_String<charT, traits>& rhs) {
-			basic_String<charT, traits> res(rhs);
+		template<typename C, typename R, typename T>
+		friend basic_String<C, R> operator+(T lhs, const basic_String<C, R>& rhs) {
+			basic_String<C, R> res(rhs);
 			return res += lhs;
 		}
 
@@ -183,13 +169,13 @@ namespace stduino {
 		// We will only define comparison operators where basic_String is on the lhs
 		// If you want more detailed comparisons, use the std_str() function.
 		// String == String
-		template<typename charT, typename traits>
-		friend bool operator==(const basic_String<charT, traits>& lhs, basic_String<charT, traits>& rhs) {
+		template<typename C, typename R>
+		friend bool operator==(const basic_String<C, R>& lhs, basic_String<C, R>& rhs) {
 			return lhs.buffer_ == rhs.buffer_;
 		}
 		// String == other
-		template<typename charT, typename traits, typename T, typename std::enable_if_t<!std::is_same_v<basic_String<charT, traits>, T>, bool> = true>
-		friend bool operator==(const basic_String<charT, traits>& lhs, T rhs) {
+		template<typename C, typename R, typename T, typename std::enable_if_t<!std::is_same<basic_String<C, R>, T>::value, bool> = true>
+		friend bool operator==(const basic_String<C, R>& lhs, T rhs) {
 			return lhs.buffer_ == rhs;
 		}
 
@@ -268,11 +254,11 @@ namespace stduino {
 			std::transform(buffer_.begin(), buffer_.end(), buffer_.begin(), [](char c) -> char {return std::toupper(c); });
 		}
 		void trim(void) {
-			std_string::iterator left = std::find_if_not(buffer_.begin(), buffer_.end(), [](char c) {return std::isspace(c); });
+			auto left = std::find_if_not(buffer_.begin(), buffer_.end(), [](char c) {return std::isspace(c); });
 			if (left != buffer_.begin()) {
 				buffer_.erase(buffer_.begin(), left);
 			}
-			std_string::reverse_iterator right = std::find_if_not(buffer_.rbegin(), buffer_.rend(), [](char c) {return std::isspace(c); });
+			auto right = std::find_if_not(buffer_.rbegin(), buffer_.rend(), [](char c) {return std::isspace(c); });
 			if (right != buffer_.rbegin()) {
 				buffer_.erase(right.base(), buffer_.end());
 			}
