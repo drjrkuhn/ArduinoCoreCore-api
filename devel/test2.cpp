@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
 }
 #endif
 
-#if 1
+#if 0
 #include "new_time.h"
 
 int main(int argc, char* argv[])
@@ -261,4 +261,47 @@ int main(int argc, char* argv[])
 	cout << "average of " << avg << " ms per delay" << endl;
 
 }
+#endif
+
+#if 1
+
+#include <string>
+
+using namespace std;
+
+class mystr {
+
+public:
+	using iterator = string::iterator;
+	using const_iterator = string::const_iterator;
+	using reverse_iterator = string::reverse_iterator;
+	using const_reverse_iterator = string::const_reverse_iterator;
+
+	mystr() : buffer_() {}
+	mystr(const char* c_str) : buffer_(c_str) {	}
+	mystr(const string& other) : buffer_(other) {}
+	mystr(string&& other) : buffer_(std::move(other)) {}
+
+	template<typename T>
+	friend bool operator==(const mystr& lhs, T rhs) { return lhs.buffer_ == rhs; }
+	template<typename T>
+	friend bool operator==(T lhs, const mystr& rhs) { return lhs == rhs.buffer_; }
+
+	string& as_str() { return buffer_; }
+	explicit operator string() const { return buffer_; }
+
+protected:
+	string buffer_;
+};
+
+int main(int argc, char* argv[]) 
+{
+	mystr hello("hello");
+
+	cout << string(hello) << endl;
+	cout << (hello == "hello") << endl;
+	cout << ("hello" == hello) << endl;
+	return 0;
+}
+
 #endif

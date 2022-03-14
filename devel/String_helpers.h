@@ -33,15 +33,12 @@ namespace stduino {
 
 	template <typename T>
 	constexpr bool is_character_v = std::is_same<T,char>::value || std::is_same<T,unsigned char>::value;
-	// constexpr bool is_character_v = is_any<T, SU_CHARACTERS >::value;
 
 	template <typename T>
 	constexpr bool is_character_ptr_v = std::is_same<T,char*>::value || std::is_same<T,unsigned char*>::value || std::is_same<T,__FlashStringHelper*>::value;
-	// constexpr bool is_character_ptr_v = is_any<T, SU_CHARACTER_PTRS >::value;
 
 	template <typename T>
 	constexpr bool is_nonchar_integral_v = std::is_integral<T>::value && !is_character_v<T>;
-	// constexpr bool is_nonchar_integral_v = is_any<T, SU_INTEGRALS >::value;
 
 	template <typename T>
 	constexpr bool is_nonchar_signed_integral_v = is_nonchar_integral_v<T> && std::is_signed<T>::value;
