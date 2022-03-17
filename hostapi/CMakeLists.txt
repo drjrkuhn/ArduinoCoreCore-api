@@ -14,22 +14,25 @@ add_library(ArduinoAPIhost
 #	itoa.h
 #	PluggableUSB.cpp
 #	PluggableUSB.h
-#	Print.cpp
-#	Print.h
-#	Printable.h
+	Print.cpp
+	Print.h
+	Printable.h
+	Print_ostream.h
 #	RingBuffer.h
 #	Server.h
 #	Stream.cpp
 #	Stream.h
 	WString.cpp
 	WString.h
+	StringHelpers.h
 #	Udp.h
 #	USBAPI.h
 #	WCharacter.h
 #	deprecated-avr-comp/avr/dtostrf.h
 #	deprecated-avr-comp/avr/interrupt.h
 #	deprecated-avr-comp/avr/pgmspace.h
- "StringHelpers.h" "deprecated/host/pgmspace.h")
+    deprecated/host/pgmspace.h
+)
 
 #add_compile_definitions(USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
 #target_compile_definitions(ArduinoAPIhost  USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
