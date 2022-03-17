@@ -29,7 +29,7 @@ add_library(ArduinoAPIhost
 #	deprecated-avr-comp/avr/dtostrf.h
 #	deprecated-avr-comp/avr/interrupt.h
 #	deprecated-avr-comp/avr/pgmspace.h
- "StringHelpers.h")
+ "StringHelpers.h" "deprecated/host/pgmspace.h")
 
 #add_compile_definitions(USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
 #target_compile_definitions(ArduinoAPIhost  USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)

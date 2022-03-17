@@ -28,11 +28,7 @@
 #include <string>
 #include "string.h"
 #include <cctype>
-//#if defined(__AVR__)
-//#include "avr/pgmspace.h"
-//#else
-//#include "deprecated-avr-comp/avr/pgmspace.h"
-//#endif
+#include "deprecated/host/pgmspace.h"
 
 namespace arduino {
 

@@ -71,7 +71,8 @@ String::String(const __FlashStringHelper *pstr)
 String::String(String &&rval)
 	: buffer(std::move(rval.buffer))
 {
-	rval.buffer.clear();
+	if (this != &rval)
+		rval.buffer.clear();
 }
 #endif
 
@@ -168,7 +169,8 @@ String& String::copy(const std::string& str)
 void String::move(String &rhs)
 {
 	buffer.assign(std::move(rhs.buffer));
-	rhs.buffer.clear();
+	if (this != &rhs)
+		rhs.buffer.clear();
 }
 #endif
 
@@ -564,15 +566,18 @@ void String::replace(const String& find, const String& replace)
 	}
 }
 
-void String::remove(unsigned int index){
+void String::remove(unsigned int index)
+{
 	// Pass the biggest integer as the count. The remove method
 	// below will take care of truncating it at the end of the
 	// string.
 	remove(index, std::numeric_limits<unsigned int>::max());
 }
 
-void String::remove(unsigned int index, unsigned int count){
-	buffer.erase(index, count);
+void String::remove(unsigned int index, unsigned int count)
+{
+	if (index < buffer.length())
+		buffer.erase(index, count);
 }
 
 void String::toLowerCase(void)

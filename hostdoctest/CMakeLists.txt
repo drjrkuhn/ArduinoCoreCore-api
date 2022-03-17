@@ -1,31 +1,29 @@
 ##########################################################################
 
-cmake_minimum_required(VERSION 3.2)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+cmake_minimum_required(VERSION 3.20)
 
 ##########################################################################
+
 project(test-ArduinoAPIhost)
 
-find_package(catch2 2 CONFIG REQUIRED)
-
 ##########################################################################
 
-#include_directories(../hostapi)
-#include_directories(include)
+include_directories(../hostapi)
+include_directories(include)
+#include_directories(external/catch/v2.13.1/include)
 
 ##########################################################################
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-##########################################################################
-
-set(TEST_TARGET ${PROJECT_NAME})
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 ##########################################################################
 
 set(TEST_SRCS
+	#src/doctestmain.cpp
+	src/String/test_StringHelpers.cpp
+	src/String/test_String.cpp
 #  src/Common/test_makeWord.cpp
 #  src/Common/test_map.cpp
 #  src/Common/test_max.cpp
@@ -58,27 +56,25 @@ set(TEST_SRCS
 #  src/Stream/test_readString.cpp
 #  src/Stream/test_readStringUntil.cpp
 #  src/Stream/test_setTimeout.cpp
-
-  src/String/test_concat.cpp
-  src/String/test_operators.cpp
-  src/String/test_compareTo.cpp
-  src/String/test_comparisonFunc.cpp
-  src/String/test_characterAccessFunc.cpp
-  src/String/test_substring.cpp
-  src/String/test_indexOf.cpp
-  src/String/test_lastIndexOf.cpp
-  src/String/test_length.cpp
-  src/String/test_move.cpp
-  src/String/test_remove.cpp
-  src/String/test_replace.cpp
-  src/String/test_String.cpp
-  src/String/test_StringHelpers.cpp
-  src/String/test_toDouble.cpp
-  src/String/test_toFloat.cpp
-  src/String/test_toInt.cpp
-  src/String/test_toLowerCase.cpp
-  src/String/test_toUpperCase.cpp
-  src/String/test_trim.cpp
+#  src/String/test_concat.cpp
+#  src/String/test_operators.cpp
+#  src/String/test_compareTo.cpp
+#  src/String/test_comparisonFunc.cpp
+#  src/String/test_characterAccessFunc.cpp
+#  src/String/test_substring.cpp
+#  src/String/test_indexOf.cpp
+#  src/String/test_lastIndexOf.cpp
+#  src/String/test_length.cpp
+#  src/String/test_move.cpp
+#  src/String/test_remove.cpp
+#  src/String/test_replace.cpp
+#  src/String/test_String.cpp
+#  src/String/test_toDouble.cpp
+#  src/String/test_toFloat.cpp
+#  src/String/test_toInt.cpp
+#  src/String/test_toLowerCase.cpp
+#  src/String/test_toUpperCase.cpp
+#  src/String/test_trim.cpp
 #  src/WCharacter/test_isControl.cpp
 #  src/WCharacter/test_isDigit.cpp
 #  src/WCharacter/test_isHexadecimalDigit.cpp
@@ -89,18 +85,18 @@ set(TEST_SRCS
 #  src/WCharacter/test_isWhitespace.cpp
 )
 
-set(TEST_DUT_SRCS
+#set(TEST_DUT_SRCS
 #  ../api/Common.cpp
 #  ../api/IPAddress.cpp
 #  ../api/String.cpp
 #  ../api/Stream.cpp
 #  ../api/Print.cpp
-)
+#)
 
 ##########################################################################
 
 set(TEST_TARGET_SRCS
-  src/main.cpp
+#  src/main.cpp
 #  src/dtostrf.cpp
 #  src/itoa.cpp
 #  src/MillisFake.cpp
@@ -121,16 +117,17 @@ add_compile_definitions(HOST)
 
 ##########################################################################
 
-add_executable(
-  ${TEST_TARGET}
-  ${TEST_TARGET_SRCS}
-)
+find_package(doctest CONFIG REQUIRED)
 
-message("TEST_TARGET = ${TEST_TARGET}")
-message("TEST_TARGET_SRCS = ${TEST_TARGET_SRCS}")
+foreach(TEST_TARGET_FILE ${TEST_SRCS})
+	cmake_path(GET TEST_TARGET_FILE STEM TEST_TARGET)
+	message(CHECK_START "Adding test target ${TEST_TARGET}")
+	add_executable(${TEST_TARGET} ${TEST_TARGET_FILE})
+	add_dependencies(${TEST_TARGET}	ArduinoAPIhost)
+	target_link_libraries(${TEST_TARGET} PRIVATE doctest::doctest ArduinoAPIhost)
+	doctest_discover_tests(${TEST_TARGET})
 
-add_dependencies(${TEST_TARGET}	ArduinoAPIhost)
-target_link_libraries(${TEST_TARGET} PRIVATE Catch2::Catch2 ArduinoAPIhost)
+endforeach()
 
 
 ##########################################################################
