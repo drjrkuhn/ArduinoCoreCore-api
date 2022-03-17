@@ -162,3 +162,20 @@ TEST_CASE ("Testing & String::operator = (StringSumHelper &&)", "[String-operato
   str1 = static_cast<arduino::StringSumHelper&&>(str+ch);
   REQUIRE(str1 == "Hello!");
 }
+
+TEST_CASE("Testing & String::operator = (const std::string &) with invalid buffer of second string", "[String-operator+-18]")
+{
+	arduino::String str1("Hello");
+	std::string str2("World");
+	str1 = str2;
+	REQUIRE(str1 == str2);
+}
+
+TEST_CASE("Testing String::operator + (const StringSumHelper, const std::string)", "[String-operator+-19]")
+{
+	arduino::String str1("Hello ");
+	std::string str2("Arduino");
+	arduino::String str("Hello Arduino");
+	REQUIRE(str == str1 + str2);
+}
+

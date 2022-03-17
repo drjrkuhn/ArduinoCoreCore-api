@@ -100,3 +100,28 @@ TEST_CASE ("Testing String::compareTo(const String &) with empty buffer", "[Stri
     REQUIRE(str1.compareTo(str2) == 0);
   }
 }
+
+TEST_CASE("Testing String::compareTo(const std::string &)", "[String-compareTo-05]")
+{
+    WHEN("Strings are equal")
+    {
+        arduino::String str1("Hello");
+        std::string str2("Hello");
+        REQUIRE(str1.compareTo(str2) == 0);
+    }
+
+    WHEN("str2 is empty")
+    {
+        arduino::String str1("Hello");
+        std::string str2;
+        REQUIRE(str1.compareTo(str2) == strcmp(str1.c_str(), str2.c_str()));
+    }
+
+    WHEN("str1 is empty")
+    {
+        arduino::String str1;
+        std::string str2("Hello");
+        REQUIRE(str1.compareTo(str2) == strcmp(str1.c_str(), str2.c_str()));
+    }
+}
+

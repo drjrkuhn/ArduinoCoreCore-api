@@ -107,7 +107,6 @@ String::String(unsigned long value, unsigned char base)
 }
 
 String::String(float value, unsigned char decimalPlaces)
-//	: buffer(to_string(value, std::min(static_cast<size_t>(decimalPlaces), FLT_MAX_DECIMAL_PLACES)))
 {
 	std::ostringstream out;
 	out.precision(std::min(static_cast<size_t>(decimalPlaces), FLT_MAX_DECIMAL_PLACES));
@@ -116,7 +115,6 @@ String::String(float value, unsigned char decimalPlaces)
 }
 
 String::String(double value, unsigned char decimalPlaces)
-	//: buffer(to_string(value, std::min(static_cast<size_t>(decimalPlaces), DBL_MAX_DECIMAL_PLACES)))
 {
 	std::ostringstream out;
 	out.precision(std::min(static_cast<size_t>(decimalPlaces), DBL_MAX_DECIMAL_PLACES));
@@ -299,10 +297,17 @@ bool String::concat(const __FlashStringHelper * str)
 /*  Concatenate                              */
 /*********************************************/
 
-StringSumHelper & operator + (const StringSumHelper &lhs, const String &rhs)
+StringSumHelper& operator + (const StringSumHelper& lhs, const String& rhs)
 {
-	StringSumHelper &a = const_cast<StringSumHelper&>(lhs);
+	StringSumHelper& a = const_cast<StringSumHelper&>(lhs);
 	if (!a.concat(rhs.buffer)) a.invalidate();
+	return a;
+}
+
+StringSumHelper& operator + (const StringSumHelper& lhs, const std::string& rhs)
+{
+	StringSumHelper& a = const_cast<StringSumHelper&>(lhs);
+	if (!a.concat(rhs)) a.invalidate();
 	return a;
 }
 
@@ -390,6 +395,11 @@ int String::compareTo(const char *cstr) const
 	return buffer.compare(cstr ? cstr : "");
 }
 
+int String::compareTo(const std::string& s) const
+{
+	return buffer.compare(s);
+}
+
 bool String::equals(const String &s2) const
 {
 	return compareTo(s2) == 0;
@@ -400,30 +410,56 @@ bool String::equals(const char *cstr) const
 	return compareTo(cstr) == 0;
 }
 
+bool String::equals(const std::string& s2) const
+{
+	return compareTo(s2) == 0;
+}
+
 bool String::equalsIgnoreCase( const String &s2 ) const
 {
-	return length() == s2.length() &&
-		std::equal(buffer.begin(), buffer.end(), s2.buffer.begin(), s2.buffer.end(),
-			[](char a, char b) { return tolower(a) == tolower(b); }
-	);
+	return equalsIgnoreCase(s2.buffer);
 }
 
 bool String::startsWith( const String &s2 ) const
 {
-	return 0 == buffer.compare(0, s2.length(), s2.buffer);
+	return startsWith(s2.buffer);
 }
 
 bool String::startsWith( const String &s2, unsigned int offset ) const
 {
-	return 0 == buffer.compare(offset, s2.length(), s2.buffer);
+	return startsWith(s2.buffer, offset);
 }
 
 bool String::endsWith( const String &s2 ) const
 {
-	size_t len = length(), slen = s2.length();
-	if (len < slen || buffer.empty() || s2.buffer.empty()) return false;
-	return 0 == buffer.compare(length() - slen, slen, s2.buffer);
+	return endsWith(s2.buffer);
 }
+
+bool String::equalsIgnoreCase(const std::string& s2) const
+{
+	return length() == s2.length() &&
+		std::equal(buffer.begin(), buffer.end(), s2.begin(), s2.end(),
+			[](char a, char b) { return tolower(a) == tolower(b); }
+	);
+}
+
+bool String::startsWith(const std::string& s2) const
+{
+	return 0 == buffer.compare(0, s2.length(), s2);
+}
+
+bool String::startsWith(const std::string& s2, unsigned int offset) const
+{
+	return 0 == buffer.compare(offset, s2.length(), s2);
+}
+
+bool String::endsWith(const std::string& s2) const
+{
+	size_t len = length(), slen = s2.length();
+	if (len < slen || buffer.empty() || s2.empty()) return false;
+	return 0 == buffer.compare(length() - slen, slen, s2);
+}
+
 
 /*********************************************/
 /*  Character Access                         */
@@ -494,13 +530,24 @@ int String::indexOf( char ch, unsigned int fromIndex ) const
 
 int String::indexOf(const String &s2) const
 {
-	return indexOf(s2, 0);
+	return indexOf(s2.buffer, 0);
 }
 
 int String::indexOf(const String &s2, unsigned int fromIndex) const
 {
-	return posToIndex(buffer.find(s2.buffer, fromIndex));
+	return indexOf(s2.buffer, fromIndex);
 }
+
+int String::indexOf(const std::string& s2) const
+{
+	return indexOf(s2, 0);
+}
+
+int String::indexOf(const std::string& s2, unsigned int fromIndex) const
+{
+	return posToIndex(buffer.find(s2, fromIndex));
+}
+
 
 int String::lastIndexOf( char theChar ) const
 {
@@ -520,10 +567,20 @@ int String::lastIndexOf(const String &s2) const
 
 int String::lastIndexOf(const String &s2, unsigned int fromIndex) const
 {
+	return lastIndexOf(s2.buffer, fromIndex);
+}
+
+int String::lastIndexOf(const std::string& s2) const
+{
+	return lastIndexOf(s2, length() - s2.length());
+}
+
+int String::lastIndexOf(const std::string& s2, unsigned int fromIndex) const
+{
 	int len = length(), s2len = s2.length();
 	if (s2len == 0 || len == 0 || s2len > len) return -1;
 	if (fromIndex >= len) fromIndex = len - 1;
-	return posToIndex(buffer.rfind(s2.buffer, indexToPos(fromIndex)));
+	return posToIndex(buffer.rfind(s2, indexToPos(fromIndex)));
 }
 
 String String::substring(unsigned int left, unsigned int right) const

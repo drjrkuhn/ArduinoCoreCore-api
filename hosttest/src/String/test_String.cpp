@@ -157,3 +157,11 @@ TEST_CASE ("Testing String(String &&) with move(String &rhs) from larger to smal
   str = static_cast<arduino::String&&>(str1);
   REQUIRE(str == "Arduino");
 }
+
+TEST_CASE("Testing String(const std::string &) constructor()", "[String-Ctor-17]")
+{
+    std::string str1("Hello Arduino String class");
+    arduino::String str2(str1);
+    REQUIRE(str1 == str2);
+}
+

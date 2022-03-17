@@ -98,3 +98,50 @@ TEST_CASE ("Testing String::indexOf(const String &, unsigned int fromIndex)", "[
     REQUIRE(str.indexOf(search_str, 8) == -1);
   }
 }
+
+TEST_CASE("Testing String::indexOf(const std::string &)", "[String-indexOf-05]")
+{
+    std::string const search_str("Arduino");
+
+    WHEN("str is empty")
+    {
+        arduino::String str;
+        REQUIRE(str.indexOf(search_str) == -1);
+    }
+    WHEN("str does not contained searched element")
+    {
+        arduino::String str("Hallo");
+        REQUIRE(str.indexOf(search_str) == -1);
+    }
+    WHEN("str does contain searched element")
+    {
+        arduino::String str("Hello Arduino!");
+        REQUIRE(str.indexOf(search_str) == 6);
+    }
+}
+
+TEST_CASE("Testing String::indexOf(const std::string &, unsigned int fromIndex)", "[String-indexOf-06]")
+{
+    std::string const search_str("Arduino");
+
+    WHEN("str is empty")
+    {
+        arduino::String str;
+        REQUIRE(str.indexOf(search_str, 3) == -1);
+    }
+    WHEN("str does not contained searched element")
+    {
+        arduino::String str("Hallo");
+        REQUIRE(str.indexOf(search_str, 3) == -1);
+    }
+    WHEN("str does contain searched element and fromIndex is < start of searched element")
+    {
+        arduino::String str("Hello Arduino!");
+        REQUIRE(str.indexOf(search_str, 3) == 6);
+    }
+    WHEN("str does contain searched element and fromIndex is > start of searched element")
+    {
+        arduino::String str("Hello Arduino!");
+        REQUIRE(str.indexOf(search_str, 8) == -1);
+    }
+}
