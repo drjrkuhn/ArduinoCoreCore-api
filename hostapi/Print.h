@@ -69,6 +69,8 @@ class Print
     size_t print(const char[]);
     size_t print(char);
     size_t print(unsigned char, int = DEC);
+    size_t print(short, int = DEC);
+    size_t print(unsigned short, int = DEC);
     size_t print(int, int = DEC);
     size_t print(unsigned int, int = DEC);
     size_t print(long, int = DEC);
@@ -86,6 +88,8 @@ class Print
     size_t println(const char[]);
     size_t println(char);
     size_t println(unsigned char, int = DEC);
+    size_t println(short, int = DEC);
+    size_t println(unsigned short, int = DEC);
     size_t println(int, int = DEC);
     size_t println(unsigned int, int = DEC);
     size_t println(long, int = DEC);

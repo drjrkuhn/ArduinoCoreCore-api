@@ -81,43 +81,50 @@ size_t Print::print(char c)
   return write(c);
 }
 
-size_t Print::print(unsigned char b, int base)
+size_t Print::print(unsigned char n, int base)
 {
-  return print((unsigned long) b, base);
+    if (base == 0) return write(n);
+    else return write(to_string(n, base));
+}
+
+size_t Print::print(short n, int base)
+{
+    return write(to_string(n, base));
+}
+
+size_t Print::print(unsigned short n, int base)
+{
+    return write(to_string(n, base));
 }
 
 size_t Print::print(int n, int base)
 {
-  return print((long) n, base);
+    return write(to_string(n, base));
 }
 
 size_t Print::print(unsigned int n, int base)
 {
-  return print((unsigned long) n, base);
+    return write(to_string(n, base));
 }
 
 size_t Print::print(long n, int base)
 {
-  if (base == 0) return write(n);
-  else return write(to_string(n, base));
+    return write(to_string(n, base));
 }
 
 size_t Print::print(unsigned long n, int base)
 {
-  if (base == 0) return write(n);
-  else return write(to_string(n, base));
+    return write(to_string(n, base));
 }
 
 size_t Print::print(long long n, int base)
 {
-    if (base == 0) return write(n);
-    else return write(to_string(n, base));
+    return write(to_string(n, base));
 }
 
 size_t Print::print(unsigned long long n, int base)
 {
-    if (base == 0) return write(n);
-    else return write(to_string(n, base));
+    return write(to_string(n, base));
 }
 
 size_t Print::print(float n, int digits)
@@ -187,6 +194,20 @@ size_t Print::println(unsigned char b, int base)
   size_t n = print(b, base);
   n += println();
   return n;
+}
+
+size_t Print::println(short num, int base)
+{
+    size_t n = print(num, base);
+    n += println();
+    return n;
+}
+
+size_t Print::println(unsigned short num, int base)
+{
+    size_t n = print(num, base);
+    n += println();
+    return n;
 }
 
 size_t Print::println(int num, int base)
