@@ -8,8 +8,7 @@
 
 #include <catch.hpp>
 
-#include <MillisFake.h>
-#include <StreamMock.h>
+#include "StreamMocks.h"
 
 /**************************************************************************************
  * TEST CODE
@@ -19,7 +18,6 @@ TEST_CASE ("Testing 'readString' with data available within the stream", "[Strea
 {
   StreamMock mock;
   mock.setTimeout(10);
-  millis_autoOn();
   mock << "This is test stream content";
 
   REQUIRE(mock.readString() == arduino::String("This is test stream content"));

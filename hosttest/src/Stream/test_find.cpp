@@ -8,7 +8,7 @@
 
 #include <catch.hpp>
 
-#include <StreamMock.h>
+#include "StreamMocks.h"
 
 /**************************************************************************************
  * TEST CODE
@@ -22,7 +22,8 @@ TEST_CASE ("Testing find(const char *target)", "[Stream-find-01]")
   {
     mock << "This is a test string";
 
-    REQUIRE(mock.find("test") == true);
+    bool ret = mock.find("test");
+    REQUIRE(ret == true);
     REQUIRE(mock.readString() == arduino::String(" string"));
   }
   WHEN ("'target' is not contained in stream")

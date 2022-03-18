@@ -8,7 +8,7 @@
 
 #include <catch.hpp>
 
-#include <StreamMock.h>
+#include "StreamMocks.h"
 
 #include <float.h>
 
