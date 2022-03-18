@@ -20,8 +20,8 @@ add_library(ArduinoAPIhost
 	Print_ostream.h
 #	RingBuffer.h
 #	Server.h
-#	Stream.cpp
-#	Stream.h
+	Stream.cpp
+	Stream.h
 	WString.cpp
 	WString.h
 	StringHelpers.h
@@ -43,4 +43,6 @@ target_include_directories(ArduinoAPIhost
 )
 
 set_property(TARGET ArduinoAPIhost PROPERTY CXX_STANDARD 14)
+target_link_libraries(ArduinoAPIhost PRIVATE Boost::boost)
+
 
