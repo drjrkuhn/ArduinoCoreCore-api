@@ -25,7 +25,9 @@ TEST_CASE ("Testing parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore =
   WHEN ("Only a integer (no comma) is contained in stream")
   {
     mock << "12";
-    REQUIRE(mock.parseFloat() == 12.0f);
+    float f = mock.parseFloat();
+    REQUIRE(f == 12.0f);
+    //REQUIRE(mock.parseFloat() == 12.0f);
   }
   WHEN ("A positive float is contained in stream")
   {

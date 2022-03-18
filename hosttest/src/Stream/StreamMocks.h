@@ -17,12 +17,17 @@
    * CLASS DECLARATION
    **************************************************************************************/
 
-class StreamMock : public arduino::Stream_base<StreamMock>
+class StreamMock : public arduino::Stream
 {
 public:
 
-	int timedRead_impl() {	return read();	}
+	virtual int timedRead() override {	
+		return read();	
+	}
 
+	virtual int timedPeek() override {
+		return peek();
+	}
 
 	void operator << (char const* str) {
 		for (size_t c = 0; c < strlen(str); c++)

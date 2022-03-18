@@ -51,24 +51,55 @@ namespace arduino {
 
 #define NO_IGNORE_CHAR  '\x01' // a char not found in a valid ASCII numeric field
 
+	// Base input interface for io streams
+	class Stream_base
+	{
+	protected:
+		virtual int timedRead() = 0;
+		virtual int timedPeek() = 0;
+		virtual int peekNextDigit(LookaheadMode lookahead, bool detectDecimal) = 0;
+	public:
+		virtual int available() = 0;
+		virtual int read() = 0;
+		virtual int peek() = 0;
+		virtual bool find(const char* target) = 0;
+		virtual bool find(const char* target, size_t length) = 0;
+		virtual bool findUntil(const char* target, const char* terminator) = 0;
+
+		virtual bool findUntil(const char* target, size_t targetLen, const char* terminator, size_t termLen) = 0;
+		virtual long parseInt(LookaheadMode lookahead, char ignore) = 0;
+		virtual float parseFloat(LookaheadMode lookahead, char ignore) = 0;
+		virtual size_t readBytes(char* buffer, size_t length) = 0;
+		virtual size_t readBytesUntil(char terminator, char* buffer, size_t length) = 0;
+		virtual String readString() = 0;
+		virtual String readStringUntil(char terminator) = 0;
+	protected:
+		struct MultiTarget {
+			const char* str;  // string you're searching for
+			size_t len;       // length of string you're searching for
+			size_t index;     // index used by the search routine.
+		};
+		virtual int findMulti(struct MultiTarget* targets, int tCount) = 0;
+	};
+
+
+	//###############################################################################
+	//###############################################################################
+	//###############################################################################
+	//###############################################################################
+
+
+
 	// Base class for io streams.
-	// Use CRTP for static polymorphism of Stream_base methods like readUntil().
-	// Derived classes of the form
-	//		MyStream : public Stream_base<MyStream> {}
-	// may create different versions of of any member_impl function
-	template <class D>
-	class Stream_base : public Print
+	class Stream : public Stream_base, public Print
 	{
 	protected:
 		unsigned long _timeout;      // number of milliseconds to wait for the next char before aborting timed read
 		unsigned long _startMillis;  // used for timeout measurement
-		const D& self() const { return static_cast<const D&>(*this); }
-		D& self() { return static_cast<D&>(*this); }
 
 	
 		// private method to read stream with timeout
-		int timedRead() { return self().timedRead_impl(); }
-		int timedRead_impl() {
+		virtual int timedRead() override {
 			int c;
 			_startMillis = millis();
 			do {
@@ -79,8 +110,7 @@ namespace arduino {
 		}
 
 		// private method to peek stream with timeout
-		int timedPeek() { return self().timedPeek_impl(); }
-		int timedPeek_impl() {
+		virtual int timedPeek() override {
 			int c;
 			_startMillis = millis();
 			do {
@@ -91,10 +121,7 @@ namespace arduino {
 		}
 
 		// returns peek of the next digit in the stream or -1 if timeout. discards non-numeric characters
-		int peekNextDigit(LookaheadMode lookahead, bool detectDecimal) { 
-			return self().peekNextDigit_impl(lookahead, detectDecimal); 
-		}
-		int peekNextDigit_impl(LookaheadMode lookahead, bool detectDecimal) {
+		virtual int peekNextDigit(LookaheadMode lookahead, bool detectDecimal) override {
 			int c;
 			while (1) {
 				c = timedPeek();
@@ -124,7 +151,7 @@ namespace arduino {
 		virtual int read() = 0;
 		virtual int peek() = 0;
 
-		Stream_base() : _timeout(PARSE_TIMEOUT) { }
+		Stream() : _timeout(PARSE_TIMEOUT) { }
 
 		// parsing methods
 
@@ -133,32 +160,26 @@ namespace arduino {
 		unsigned long getTimeout(void) { return _timeout; }
 
 		// reads data from the stream until the target string is found
-		bool find(const char* target) { return self().find_impl(target); }
-		bool find_impl(const char* target) { return findUntil(target, strlen(target), NULL, 0); }
+		virtual bool find(const char* target) override { return findUntil(target, strlen(target), NULL, 0); }
 		// returns true if target string is found, false if timed out (see setTimeout)
 		bool find(const uint8_t* target) { return find(reinterpret_cast<const char*>(target)); }
 
 
 		// reads data from the stream until the target string of given length is found
 		// returns true if target string is found, false if timed out
-		bool find(const char* target, size_t length) { return self().find_impl(target, length); }
-		bool find_impl(const char* target, size_t length) { return findUntil(target, length, NULL, 0); }
+		virtual bool find(const char* target, size_t length) override { return findUntil(target, length, NULL, 0); }
 		bool find(const uint8_t* target, size_t length) { return find(reinterpret_cast<const char*>(target), length); }
 		// returns true if target string is found, false if timed out
 		bool find(char target) { return find(&target, 1); }
 
 		// as find but search ends if the terminator string is found
-		bool findUntil(const char* target, const char* terminator) { return self().findUntil_impl(target, terminator); }
-		bool findUntil_impl(const char* target, const char* terminator) { return findUntil(target, strlen(target), terminator, strlen(terminator)); }
+		virtual bool findUntil(const char* target, const char* terminator) override { return findUntil(target, strlen(target), terminator, strlen(terminator)); }
 		bool findUntil(const uint8_t* target, const char* terminator) { return findUntil(reinterpret_cast<const char*>(target), terminator); }
 
 		// reads data from the stream until the target string of the given length is found
 		// search terminated if the terminator string is found
 		// returns true if target string is found, false if terminated or timed out
-		bool findUntil(const char* target, size_t targetLen, const char* terminator, size_t termLen) {
-			return self().findUntil_impl(target, targetLen, terminator, termLen);
-		}
-		bool findUntil_impl(const char* target, size_t targetLen, const char* terminator, size_t termLen) {
+		virtual bool findUntil(const char* target, size_t targetLen, const char* terminator, size_t termLen) override {
 			if (terminator == NULL) {
 				MultiTarget t[1] = { { target, targetLen, 0 } };
 				return findMulti(t, 1) == 0;
@@ -177,10 +198,7 @@ namespace arduino {
 		// See LookaheadMode enumeration at the top of the file.
 		// Lookahead is terminated by the first character that is not a valid part of an integer.
 		// Once parsing commences, 'ignore' will be skipped in the stream.
-		long parseInt(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) {
-			return self().parseInt_impl(lookahead, ignore);
-		}
-		long parseInt_impl(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) {
+		virtual long parseInt(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) override {
 			bool isNegative = false;
 			long value = 0;
 			int c;
@@ -208,11 +226,8 @@ namespace arduino {
 
 
 		// as parseInt but returns a floating point value
-		float parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) {
-			return self().parseFloat_impl(lookahead, ignore);
-		}
-		float parseFloat_impl(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) {
-				bool isNegative = false;
+		virtual float parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) override {
+			bool isNegative = false;
 			bool isFraction = false;
 			double value = 0.0;
 			int c;
@@ -254,10 +269,7 @@ namespace arduino {
 		// returns the number of characters placed in the buffer
 		// the buffer is NOT null terminated.
 		//
-		size_t readBytes(char* buffer, size_t length) {
-			return self().readBytes_impl(buffer, length);
-		}
-		size_t readBytes_impl(char* buffer, size_t length) {
+		virtual size_t readBytes(char* buffer, size_t length) override {
 			size_t count = 0;
 			while (count < length) {
 				int c = timedRead();
@@ -270,14 +282,11 @@ namespace arduino {
 
 		// terminates if length characters have been read or timeout (see setTimeout)
 		// returns the number of characters placed in the buffer (0 means no valid data found)
-		size_t readBytes(uint8_t* buffer, size_t length) { return readBytes(static_cast<char*>(buffer), length); }
+		size_t readBytes(uint8_t* buffer, size_t length) { return readBytes(reinterpret_cast<char*>(buffer), length); }
 
 		// as readBytes with terminator character
 		// return number of characters, not including null terminator
-		size_t readBytesUntil(char terminator, char* buffer, size_t length) {
-			return self().readBytesUntil_impl(terminator, buffer, length);
-		}
-		size_t readBytesUntil_impl(char terminator, char* buffer, size_t length) {
+		virtual size_t readBytesUntil(char terminator, char* buffer, size_t length) override {
 				size_t index = 0;
 			while (index < length) {
 				int c = timedRead();
@@ -290,14 +299,11 @@ namespace arduino {
 		// terminates if length characters have been read, timeout, or if the terminator character  detected
 		// returns the number of characters placed in the buffer (0 means no valid data found)
 		size_t readBytesUntil(char terminator, uint8_t* buffer, size_t length) { 
-			return readBytesUntil(terminator, static_cast<char*>(buffer), length); 
+			return readBytesUntil(terminator, reinterpret_cast<char*>(buffer), length);
 		}
 
 		// Arduino String functions to be added here
-		String readString() {
-			return self().readString_impl();
-		}
-		String readString_impl() {
+		virtual String readString() override {
 				String ret;
 			int c = timedRead();
 			while (c >= 0)
@@ -307,10 +313,7 @@ namespace arduino {
 			}
 			return ret;
 		}
-		String readStringUntil(char terminator) {
-			return self().readStringUntil_impl(terminator);
-		}
-		String readStringUntil_impl(char terminator) {
+		virtual String readStringUntil(char terminator) override {
 			String ret;
 			int c = timedRead();
 			while (c >= 0 && (char)c != terminator)
@@ -328,18 +331,9 @@ namespace arduino {
 		long parseInt(char ignore) { return parseInt(SKIP_ALL, ignore); }
 		float parseFloat(char ignore) { return parseFloat(SKIP_ALL, ignore); }
 
-		struct MultiTarget {
-			const char* str;  // string you're searching for
-			size_t len;       // length of string you're searching for
-			size_t index;     // index used by the search routine.
-		};
-
 		// This allows you to search for an arbitrary number of strings.
 		// Returns index of the target that is found first or -1 if timeout occurs.
-		int findMulti(struct MultiTarget* targets, int tCount) {
-			return self().findMulti_impl(targets, tCount);
-		}
-		int findMulti_impl(struct MultiTarget* targets, int tCount) {
+		virtual int findMulti(struct MultiTarget* targets, int tCount) override {
 			// any zero length target string automatically matches and would make
 			// a mess of the rest of the algorithm.
 			for (struct MultiTarget* t = targets; t < targets + tCount; ++t) {
@@ -404,9 +398,6 @@ namespace arduino {
 			return -1;
 		}
 	};
-
-	// The traditional arduino::Stream class
-	class Stream : public Stream_base<Stream> {};
 
 #undef NO_IGNORE_CHAR
 
