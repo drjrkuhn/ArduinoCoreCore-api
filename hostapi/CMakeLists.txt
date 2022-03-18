@@ -20,6 +20,7 @@ add_library(ArduinoAPIhost
 	Print_ostream.h
 #	RingBuffer.h
 #	Server.h
+	Stream.cpp
 	Stream.h
 	WString.cpp
 	WString.h
