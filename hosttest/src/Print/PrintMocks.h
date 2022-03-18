@@ -15,3 +15,11 @@ public:
 protected:
     int _i;
 };
+
+class Print_basic : public Print {
+public:
+    virtual size_t write(uint8_t) override { return 1; }
+    void mock_setWriteError(int err) {
+        setWriteError(err);
+    }
+};

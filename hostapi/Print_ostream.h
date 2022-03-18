@@ -104,8 +104,8 @@ namespace arduino {
 		void str(const std::string s) { _oss.str(s); }
 		void clear() { _oss.str(""); _oss.clear(); }
 
-		/// number of bytes available in write buffer.
-		/// number of bytes available in write buffer.
+		/// number of bytes available in write buffer. 
+		/// For stringstream it will return 0 just before reallocating more buffer space
 		virtual int availableForWrite() override {
 			return str().capacity() - str().length();
 		}

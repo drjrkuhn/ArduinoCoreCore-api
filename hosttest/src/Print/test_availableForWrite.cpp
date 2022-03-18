@@ -11,15 +11,12 @@
 #include <iostream>
 #include <Print.h>
 #include <Print_ostream.h>
+#include "PrintMocks.h"
 
 /**************************************************************************************
  * TEST CODE
  **************************************************************************************/
 
-class Print_basic : public Print {
-public:
-	virtual size_t write(uint8_t) override { return 1; }
-};
 
 TEST_CASE("Print::availableForWrite() should return 0 if not overwritten by derived class", "[Print-availableForWrite-01]")
 {

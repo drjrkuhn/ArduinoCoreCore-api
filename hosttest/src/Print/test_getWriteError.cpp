@@ -2,29 +2,29 @@
  * Copyright (c) 2020 Arduino.  All rights reserved.
  */
 
-/**************************************************************************************
- * INCLUDE
- **************************************************************************************/
+ /**************************************************************************************
+  * INCLUDE
+  **************************************************************************************/
 
 #include <catch.hpp>
 
 #include <Print.h>
 
-#include <PrintMock.h>
+#include "PrintMocks.h"
 
-/**************************************************************************************
- * TEST CODE
- **************************************************************************************/
+  /**************************************************************************************
+   * TEST CODE
+   **************************************************************************************/
 
-TEST_CASE ("No write error has been set", "[Print-getWriteError-01]")
+TEST_CASE("No write error has been set", "[Print-getWriteError-01]")
 {
-  PrintMock mock;
-  REQUIRE(mock.getWriteError() == 0);
+	Print_basic mock;
+	REQUIRE(mock.getWriteError() == 0);
 }
 
-TEST_CASE ("A write error has been set", "[Print-getWriteError-02]")
+TEST_CASE("A write error has been set", "[Print-getWriteError-02]")
 {
-  PrintMock mock;
-  mock.mock_setWriteError(5);
-  REQUIRE(mock.getWriteError() == 5);
+	Print_basic mock;
+	mock.mock_setWriteError(5);
+	REQUIRE(mock.getWriteError() == 5);
 }

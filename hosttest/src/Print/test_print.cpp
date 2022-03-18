@@ -12,7 +12,7 @@
 #include <Print.h>
 #include <Printable.h>
 #include <Print_ostream.h>
-#include "PrintableInt.h"
+#include "PrintMocks.h"
 
   /**************************************************************************************
    * TEST CODE
