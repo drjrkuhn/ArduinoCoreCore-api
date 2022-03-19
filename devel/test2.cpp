@@ -382,6 +382,15 @@ int main(int argc, char* argv[])
 
 using namespace std;
 
+//// the partial specialization of A is enabled via a template parameter
+//template<class T, class Enable = void>
+//struct is_char_iterator : false_type {}; // primary template
+//
+//template<class T>
+//struct is_char_iterator<T, typename std::enable_if<std::is_same<std::iterator_traits<T>::value_type, char>::value>::type> : true_type {
+//}; // specialization for floating point types
+
+
 template <typename T>
 constexpr bool is_char_iterator_v = std::is_same<std::iterator_traits<T>::value_type, char>::value;
 
@@ -405,11 +414,11 @@ int main(int argc, char* argv[])
 	cout << endl;
 
 	string world("world");
-	print(world.begin(), world.end());
+	print(world.cbegin(), world.cend());
 	cout << endl;
 
 	vector<char> cvec{ 'a','b','c','d','e'};
-	print(cvec.begin(), cvec.end());
+	print(cvec.cbegin(), cvec.cend());
 	cout << endl;
 
 	//vector<long> lvec{ 10, 20, 30, 40, 50, 60 };
