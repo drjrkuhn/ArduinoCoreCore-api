@@ -125,6 +125,9 @@ message("TEST_TARGET_SRCS = ${TEST_TARGET_SRCS}")
 add_dependencies(${TEST_TARGET}	ArduinoAPIhost)
 target_link_libraries(${TEST_TARGET} PRIVATE Catch2::Catch2 ArduinoAPIhost)
 
+add_executable(work1  work/work1.cpp)
+add_dependencies(work1	ArduinoAPIhost)
+target_link_libraries(work1 PRIVATE Catch2::Catch2 ArduinoAPIhost)
 
 ##########################################################################
 

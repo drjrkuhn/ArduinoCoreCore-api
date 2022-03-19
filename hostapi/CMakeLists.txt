@@ -17,11 +17,12 @@ add_library(ArduinoAPIhost
 	Print.cpp
 	Print.h
 	Printable.h
-	Print_ostream.h
+	Print_stdostream.h
 #	RingBuffer.h
 #	Server.h
 	Stream.cpp
 	Stream.h
+	Stream_stdstream.h
 	WString.cpp
 	WString.h
 	StringHelpers.h
@@ -32,7 +33,7 @@ add_library(ArduinoAPIhost
 #	deprecated-avr-comp/avr/interrupt.h
 #	deprecated-avr-comp/avr/pgmspace.h
     deprecated/host/pgmspace.h
-)
+ )
 
 #add_compile_definitions(USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
 #target_compile_definitions(ArduinoAPIhost  USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)

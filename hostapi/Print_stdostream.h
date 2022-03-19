@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <streambuf>
-#include <stdio.h> // for size_t
+#include <stdio.h>
 #include <string>
 #include <limits>
 #include <ios>
