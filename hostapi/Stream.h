@@ -64,6 +64,7 @@ namespace arduino {
 		virtual int peek() = 0;
 		virtual bool find(const char* target) = 0;
 		virtual bool find(const char* target, size_t length) = 0;
+		virtual bool find(std::string target) = 0;
 		virtual bool find(char target) = 0;
 		virtual bool findUntil(const char* target, const char* terminator) = 0;
 		virtual bool findUntil(const char* target, size_t targetLen, const char* terminator, size_t termLen) = 0;
@@ -73,6 +74,8 @@ namespace arduino {
 		virtual size_t readBytesUntil(char terminator, char* buffer, size_t length) = 0;
 		virtual String readString() = 0;
 		virtual String readStringUntil(char terminator) = 0;
+		virtual std::string readStdString() = 0;
+		virtual std::string readStdStringUntil(char terminator) = 0;
 	protected:
 		struct MultiTarget {
 			const char* str;  // string you're searching for
@@ -110,6 +113,7 @@ namespace arduino {
 		virtual bool find(const char* target, size_t length) override;   // reads data from the stream until the target string of given length is found
 		bool find(const uint8_t* target, size_t length) { return find((const char*)target, length); }
 		// returns true if target string is found, false if timed out
+		virtual bool find(const std::string target) override;
 
 		virtual bool find(char target) override { return find(&target, 1); }
 
@@ -139,9 +143,16 @@ namespace arduino {
 		// terminates if length characters have been read, timeout, or if the terminator character  detected
 		// returns the number of characters placed in the buffer (0 means no valid data found)
 
+		template <typename CharIT, typename std::enable_if<is_char_iterator_v<CharIT>, bool>::type = false>
+		std::string readBytes_for(CharIT begin, CharIT end) {
+			return readBytes(&begin[0], end - begin);
+		}
+
 		// Arduino String functions to be added here
 		virtual String readString() override;
 		virtual String readStringUntil(char terminator) override;
+		virtual std::string readStdString() override;
+		virtual std::string readStdStringUntil(char terminator) override;
 
 	protected:
 		long parseInt(char ignore) { return parseInt(SKIP_ALL, ignore); }

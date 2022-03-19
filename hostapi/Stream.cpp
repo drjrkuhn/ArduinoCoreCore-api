@@ -103,6 +103,12 @@ bool Stream::find(const char* target, size_t length)
     return findUntil(target, length, NULL, 0);
 }
 
+bool Stream::find(const std::string target)
+{
+    return findUntil(target.c_str(), target.length(), NULL, 0);
+}
+
+
 // as find but search ends if the terminator string is found
 bool  Stream::findUntil(const char* target, const char* terminator)
 {
@@ -245,6 +251,30 @@ String Stream::readString()
 String Stream::readStringUntil(char terminator)
 {
     String ret;
+    int c = timedRead();
+    while (c >= 0 && (char)c != terminator)
+    {
+        ret += (char)c;
+        c = timedRead();
+    }
+    return ret;
+}
+
+std::string Stream::readStdString()
+{
+    std::string ret;
+    int c = timedRead();
+    while (c >= 0)
+    {
+        ret += (char)c;
+        c = timedRead();
+    }
+    return ret;
+}
+
+std::string Stream::readStdStringUntil(char terminator)
+{
+    std::string ret;
     int c = timedRead();
     while (c >= 0 && (char)c != terminator)
     {

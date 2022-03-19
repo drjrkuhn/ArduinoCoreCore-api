@@ -21,8 +21,11 @@
 #include <inttypes.h>
 #include <stdio.h> // for size_t
 #include <string>
+#include <type_traits>
+#include <iterator>
 
 #include "WString.h"
+#include "StringHelpers.h"
 #include "Printable.h"
 
 #define DEC 10
@@ -34,9 +37,10 @@ namespace arduino {
 
 class Print_base
 {
+public:
     virtual size_t write(uint8_t) = 0;
     virtual size_t write(const uint8_t* buffer, size_t size) = 0;
-    virtual size_t write(std::string::const_iterator begin, std::string::const_iterator end) = 0;
+
     virtual size_t write(const std::string& str) = 0;
     virtual int availableForWrite() = 0;
     virtual void flush() = 0;
@@ -60,9 +64,13 @@ class Print : public Print_base
       return write((const uint8_t *)str, strlen(str));
     }
     virtual size_t write(const uint8_t *buffer, size_t size);
-    virtual size_t write(std::string::const_iterator begin, std::string::const_iterator end);
-    virtual size_t write(const std::string& str) override {
-        return write(str.begin(), str.end());
+    // iterator version of write
+    template <typename CharIT, typename std::enable_if<is_char_iterator_v<CharIT>, bool>::type = false>
+    size_t write_for(CharIT begin, CharIT end) {
+        return write(&begin[0], end - begin);
+    }
+    size_t write(const std::string& str) override {
+        return write_for(str.begin(), str.end());
     }
     size_t write(const char *buffer, size_t size) {
       return write((const uint8_t *)buffer, size);
@@ -74,7 +82,8 @@ class Print : public Print_base
 
     size_t print(const __FlashStringHelper *);
     size_t print(const String &);
-    size_t print(std::string::const_iterator begin, std::string::const_iterator end);
+    template <typename CharIT, typename std::enable_if<is_char_iterator_v<CharIT>, bool>::type = false>
+    size_t print_for(CharIT begin, CharIT end) { return write_for(begin, end); }
     size_t print(const std::string& str);
     size_t print(const char[]);
     size_t print(char);
@@ -93,7 +102,8 @@ class Print : public Print_base
 
     size_t println(const __FlashStringHelper *);
     size_t println(const String &s);
-    size_t println(std::string::const_iterator begin, std::string::const_iterator end);
+    template <typename CharIT, typename std::enable_if<is_char_iterator_v<CharIT>, bool>::type = false>
+    size_t println_for(CharIT begin, CharIT end) { return write_for(begin, end) + println(); }
     size_t println(const std::string& str);
     size_t println(const char[]);
     size_t println(char);

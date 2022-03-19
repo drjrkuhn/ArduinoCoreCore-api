@@ -39,17 +39,6 @@ size_t Print::write(const uint8_t *buffer, size_t size)
   return n;
 }
 
-size_t Print::write(std::string::const_iterator begin, std::string::const_iterator end)
-{
-    size_t n = 0;
-    auto it = begin;
-    while (it != end) {
-        if (write(static_cast<const uint8_t>(*it++))) n++;
-        else break;
-    }
-    return n;
-}
-
 
 size_t Print::print(const __FlashStringHelper *ifsh)
 {
@@ -61,14 +50,9 @@ size_t Print::print(const String &s)
   return write(s.c_str(), s.length());
 }
 
-size_t Print::print(std::string::const_iterator begin, std::string::const_iterator end) 
-{
-    return write(begin, end);
-}
-
 size_t Print::print(const std::string& str)
 {
-    return write(str.begin(), str.end());
+    return write_for(str.begin(), str.end());
 }
 
 size_t Print::print(const char str[])
@@ -159,13 +143,6 @@ size_t Print::println(const String &s)
   size_t n = print(s);
   n += println();
   return n;
-}
-
-size_t Print::println(std::string::const_iterator begin, std::string::const_iterator end)
-{
-    size_t n = print(begin, end);
-    n += println();
-    return n;
 }
 
 size_t Print::println(const std::string& str)

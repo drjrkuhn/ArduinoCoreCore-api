@@ -9,6 +9,9 @@
 
 namespace arduino {
 
+	template <typename T>
+	constexpr bool is_char_iterator_v = std::is_same<typename std::iterator_traits<T>::value_type, char>::value;
+
 	/**
 	 * Append the value of a generic **unsigned** integer to a generic string with a generic base.
 	 *
