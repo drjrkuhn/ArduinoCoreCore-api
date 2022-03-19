@@ -17,48 +17,108 @@
    * CLASS DECLARATION
    **************************************************************************************/
 
-#if 0
+#if 1
 
-template <class STREAM>
+#include <iostream>
+#include <sstream>
+
+template <class IOSTREAM>
 class Stream_stdstream : public Stream {
-protected:
-	//virtual int timedRead() = 0;
-	//virtual int timedPeek() = 0;
 public:
+	Stream_stdstream(IOSTREAM& ios) : _ios(ios) {
+		init(_ios);
+	}
+	IOSTREAM& ios() { return _ios; }
 
-	Stream_stdstream(STREAM& s) : _stream(s) {}
-	STREAM& stream() { return _stream; }
-
-	virtual size_t write(const uint8_t c) override {
-		_stream.put(static_cast<const char>(c));
-		return _stream.good() ? 1 : 0;
+	virtual size_t write(const uint8_t byte) override {
+		char cc = static_cast<char>(byte);
+		return _canput && _ios.rdbuf()->sputc(cc) == cc ? 1 : 0;
 	}
 	virtual size_t write(const uint8_t* str, size_t n) override {
-		auto first = _stream.tellp();
-		_stream.write(reinterpret_cast<const char*>(str), n);		return _stream.good() ? n : _stream.tellp() - first;
+		return _canput ? _ios.rdbuf()->sputn(reinterpret_cast<const char*>(str), n) : 0;
 	}
-	using Print::write;
-	using Print::print;
-	using Print::println;
+	virtual int availableForWrite() override {
+		return _canput ? std::numeric_limits<int>::max() : 0;
+	}
 
-	virtual int availableForWrite() override { return std::numeric_limits<int>::max(); }
+	virtual int available() override {
+		return _canget ? _ios.rdbuf()->in_avail() : 0;
+	}
 
-	virtual void flush() override {		_stream.flush();	}
-	virtual int available() {	return _stream.rdbuf()->in_avail();	}
-	virtual int read() ;
-	virtual int peek() = 0;
-	virtual bool find(const char* target, size_t length) = 0;
-	virtual bool find(char target) = 0;
-	virtual bool findUntil(const char* target, size_t targetLen, const char* terminator, size_t termLen) = 0;
-	virtual long parseInt(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) = 0;
-	virtual float parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) = 0;
-	virtual size_t readBytes(char* buffer, size_t length) = 0;
-	virtual size_t readBytesUntil(char terminator, char* buffer, size_t length) = 0;
-	virtual std::string readStdString() = 0;
-	virtual std::string readStdStringUntil(char terminator) = 0;
+	virtual int read() override {
+		return _canget ? checkget(_ios.rdbuf()->sbumpc()) : -1;
+	}
+	virtual int peek() override {
+		return _canget ? checkget(_ios.rdbuf()->sgetc()) : -1;
+	}
+	virtual size_t readBytes(char* buffer, size_t length) override {
+		return _canget ? checkget(_ios.rdbuf()->sgetn(buffer, length)) : 0;
+	}
+
 protected:
-	STREAM& stream;
+	virtual size_t checkget(size_t input) {
+		return input;
+	}
+	void init(IOSTREAM& ios) { _canget = ios.tellg() >= 0; _canput = ios.tellp() >= 0; }
+	// protected default constructor for derived
+	struct no_init_tag {};
+	Stream_stdstream(IOSTREAM& ios, no_init_tag) : _ios(ios) {}
+
+	IOSTREAM& _ios;
+	bool _canget, _canput;
 };
+
+class Stream_stdstring : public Stream_stdstream<std::stringstream> {
+public:
+	Stream_stdstring(
+		const std::string str, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out | std::ios_base::app)
+		: _ss(str, which), Stream_stdstream(_ss, (no_init_tag())) {
+		init(_ss);
+		// NOTE: open in append mode so we don't overwrite the intiial value
+	}
+	Stream_stdstring(std::ios_base::openmode which = std::ios_base::in | std::ios_base::out)
+		: _ss(which), Stream_stdstream(_ss, (no_init_tag())) {
+		init(_ss);
+		// NOTE: open in append mode so we don't overwrite the intiial value
+	}
+	std::string str() const { return _ss.str(); }
+	void str(const std::string s) { _ss.str(s); }
+	void clear() { _ss.str(""); }
+
+	std::string bufferStr() const {
+		std::string buf = _ss.str();
+		int len = buf.length(), g = _ios.tellg(), p = _ios.tellp();
+		if (p < 0) p = len;
+		bool samegp = g == p;
+		if (g < 0) g = 0;
+		int headlen = g;
+		int taillen = len - p;
+		std::string ptrs;
+		if (headlen - 1 > 0) ptrs.append(headlen - 1, '.');
+		ptrs.append(1, samegp ? '@' : '^');
+		ptrs.append(buf.substr(g, p - g));
+		if (!samegp) ptrs.append(1, 'v');
+		return ptrs;
+	}
+
+protected:
+	virtual size_t checkget(size_t input) override {
+		std::streampos g = _ios.tellg(), p = _ios.tellp();
+		if (p < 0) p = _ss.str().length();
+		if (g > 0 && g == p) clear();
+		return input;
+	}
+	std::stringstream _ss;
+};
+
+class StreamMock : public Stream_stdstring 
+{
+public:
+	void operator << (char const* str) {
+		_ss << str;
+	}
+};
+
 
 #else
 
