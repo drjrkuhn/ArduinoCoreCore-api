@@ -9,6 +9,13 @@
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
+#if TEMPLATE
+int main(int argc, char* argv[])
+{
+	return 0;
+}
+#endif
+
 #if 0
 
 //template <typename T, typename... Ts>
@@ -263,7 +270,7 @@ int main(int argc, char* argv[])
 }
 #endif
 
-#if 1
+#if 0
 
 #include <string>
 
@@ -278,7 +285,7 @@ public:
 	using const_reverse_iterator = string::const_reverse_iterator;
 
 	mystr() : buffer_() {}
-	mystr(const char* c_str) : buffer_(c_str) {	}
+	mystr(const char* c_str) : buffer_(c_str ? c_str : "") {	}
 	mystr(const string& other) : buffer_(other) {}
 	mystr(string&& other) : buffer_(std::move(other)) {}
 
@@ -297,11 +304,118 @@ protected:
 int main(int argc, char* argv[]) 
 {
 	mystr hello("hello");
+	mystr failstr(NULL);
 
 	cout << string(hello) << endl;
 	cout << (hello == "hello") << endl;
 	cout << ("hello" == hello) << endl;
+	cout << "NULL initialized: " << string(failstr) << endl;
+
+	cout << "== comparison tests ==" << endl;
+	string empty1="", empty2="", aaa="aaa", bbb="bbb";
+	cout << "aaa.compare bbb: " << aaa.compare(bbb) << endl;
+	cout << "bbb.compare aaa: " << bbb.compare(aaa) << endl;
+	cout << "empty1.compare empty2: " << empty1.compare(empty2) << endl;
+	cout << "aaa.compare empty2: " << aaa.compare(empty2) << endl;
+	cout << "empty1.compare aaa: " << empty1.compare(aaa) << endl;
+	cout << "aaa.compare "": " << aaa.compare("") << endl;
+
+	cout << "== operator[] tests ==" << endl;
+	cout << "get 1: " << aaa[1] << endl;
+	cout << "get 10: " << aaa[2] << endl;
+
+	cout << "== casting ==" << endl;
+
+	long lmax = numeric_limits<long>::max();
+	short smax = short(min(numeric_limits<short>::max(), lmax));
+	cout << "long max: " << lmax << "  convrted to short max: " << smax << endl;
+
 	return 0;
 }
 
+#endif
+
+#if 0
+
+template <class D>
+struct basic_Base {
+
+	const D& self() const {	return static_cast<const D&>(*this); }
+	D& self() { return static_cast<D&>(*this); }
+
+	int geti() { 
+		return self().geti__(); 
+	}
+	int geti__() { return 0; }
+};
+
+struct Base : basic_Base<Base> {
+};
+
+struct Derived : basic_Base<Derived> {
+	int geti__() { return 10; }
+};
+
+int main(int argc, char* argv[])
+{
+	using namespace std;
+
+	//Base<void> base;
+	Base simple;
+	Derived derived;
+
+	//cout << "base direct: " << base.geti__() << endl;
+	cout << "simple direct: " << simple.geti__() << endl;
+	cout << "derived direct: " << derived.geti__() << endl;
+
+	//cout << "base indirect: " << base.geti() << endl;
+	cout << "simple indirect: " << simple.geti() << endl;
+	cout << "derived indirect: " << derived.geti() << endl;
+	return 0;
+}
+#endif
+
+
+#if 1
+
+#include <vector>
+
+using namespace std;
+
+template <typename T>
+constexpr bool is_char_iterator_v = std::is_same<std::iterator_traits<T>::value_type, char>::value;
+
+void print(const char* buf, size_t length) {
+	cout.write(buf, length);
+}
+
+template <typename IT, typename std::enable_if<
+	is_char_iterator_v<IT>, bool>::type = false>
+void print(IT begin, IT end) {
+	iterator_traits<IT>::pointer buf = &(*begin);
+	iterator_traits<IT>::difference_type size = end - begin;
+	print(buf, size);
+}
+
+int main(int argc, char* argv[])
+{
+	char hello[] = "hello";
+
+	print(hello, strlen(hello));
+	cout << endl;
+
+	string world("world");
+	print(world.begin(), world.end());
+	cout << endl;
+
+	vector<char> cvec{ 'a','b','c','d','e'};
+	print(cvec.begin(), cvec.end());
+	cout << endl;
+
+	//vector<long> lvec{ 10, 20, 30, 40, 50, 60 };
+	//print(lvec.begin(), lvec.end());
+	//cout << endl;
+
+	return 0;
+}
 #endif
