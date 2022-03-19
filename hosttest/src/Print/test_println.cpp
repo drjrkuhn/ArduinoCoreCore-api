@@ -162,7 +162,7 @@ TEST_CASE("Print::println(const_iterator begin, const_iterator end)", "[Print-pr
     arduino::Print_stdstring mock;
     std::string const str("Test String");
 
-    mock.println_for(str.begin() + 5, str.end());
+    mock.println_from(str.begin() + 5, str.end());
 
     REQUIRE(mock.str() == "String\r\n");
 }

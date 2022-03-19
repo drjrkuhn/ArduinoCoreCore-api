@@ -52,7 +52,7 @@ size_t Print::print(const String &s)
 
 size_t Print::print(const std::string& str)
 {
-    return write_for(str.begin(), str.end());
+    return write_from(str.begin(), str.end());
 }
 
 size_t Print::print(const char str[])

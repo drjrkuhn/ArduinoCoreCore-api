@@ -141,7 +141,7 @@ namespace arduino {
 		// returns the number of characters placed in the buffer (0 means no valid data found)
 
 		template <typename CharIT, typename std::enable_if<is_char_iterator_v<CharIT>, bool>::type = false>
-		std::string readBytes_for(CharIT begin, CharIT end) {
+		size_t readBytes_to(CharIT begin, CharIT end) {
 			return readBytes(&begin[0], end - begin);
 		}
 

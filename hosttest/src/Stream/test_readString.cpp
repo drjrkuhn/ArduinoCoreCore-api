@@ -22,3 +22,12 @@ TEST_CASE ("Testing 'readString' with data available within the stream", "[Strea
 
   REQUIRE(mock.readString() == arduino::String("This is test stream content"));
 }
+
+TEST_CASE("Testing 'readStdString' with data available within the stream", "[Stream-readString-02]")
+{
+	StreamMock mock;
+	mock.setTimeout(10);
+	mock << "This is test stream content";
+
+	REQUIRE(mock.readStdString() == "This is test stream content");
+}

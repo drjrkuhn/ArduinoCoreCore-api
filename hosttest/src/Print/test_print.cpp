@@ -199,7 +199,7 @@ TEST_CASE("Print::print(const_iterator begin, const_iterator end)", "[Print-prin
     arduino::Print_stdstring mock;
     std::string const str("Test String");
 
-    mock.print_for(str.begin()+5, str.end());
+    mock.print_from(str.begin()+5, str.end());
 
     REQUIRE(mock.str() == "String");
 }

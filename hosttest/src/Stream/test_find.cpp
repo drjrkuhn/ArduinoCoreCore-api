@@ -79,3 +79,25 @@ TEST_CASE ("Testing find(char target)", "[Stream-find-03]")
     REQUIRE(mock.readString() == arduino::String(""));
   }
 }
+
+TEST_CASE("Testing find(std::string target)", "[Stream-find-04]")
+{
+    StreamMock mock;
+    mock.setTimeout(10);
+
+    WHEN("'target' is contained in stream")
+    {
+        mock << "This is a test string";
+
+        REQUIRE(mock.find(std::string("test")) == true);
+        REQUIRE(mock.readStdString() == " string");
+    }
+    WHEN("'target' is not contained in stream")
+    {
+        mock << "This is a string";
+
+        REQUIRE(mock.find(std::string("test")) == false);
+        REQUIRE(mock.readStdString() == "");
+    }
+}
+
