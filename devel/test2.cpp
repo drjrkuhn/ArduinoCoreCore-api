@@ -392,7 +392,7 @@ using namespace std;
 
 
 template <typename T>
-constexpr bool is_char_iterator_v = std::is_same<std::iterator_traits<T>::value_type, char>::value;
+constexpr bool is_char_iterator_v = std::is_same<typename std::iterator_traits<T>::value_type, char>::value;
 
 void print(const char* buf, size_t length) {
 	cout.write(buf, length);
@@ -401,8 +401,8 @@ void print(const char* buf, size_t length) {
 template <typename IT, typename std::enable_if<
 	is_char_iterator_v<IT>, bool>::type = false>
 void print(IT begin, IT end) {
-	iterator_traits<IT>::pointer buf = &(*begin);
-	iterator_traits<IT>::difference_type size = end - begin;
+	typename iterator_traits<IT>::pointer buf = &(*begin);
+	typename iterator_traits<IT>::difference_type size = end - begin;
 	print(buf, size);
 }
 
