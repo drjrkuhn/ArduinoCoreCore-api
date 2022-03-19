@@ -21,6 +21,7 @@ using namespace arduino;
 TEST_CASE ("Testing parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR)", "[Stream-parseFloat-01]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("Only a integer (no comma) is contained in stream")
   {
@@ -64,6 +65,7 @@ TEST_CASE ("Testing parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore =
 TEST_CASE ("Testing parseFloat(LookaheadMode lookahead = SKIP_NONE, char ignore = NO_IGNORE_CHAR)", "[Stream-parseFloat-02]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("Only a integer is contained in stream")
   {
@@ -88,6 +90,7 @@ TEST_CASE ("Testing parseFloat(LookaheadMode lookahead = SKIP_NONE, char ignore 
 TEST_CASE ("Testing parseFloat(LookaheadMode lookahead = SKIP_WHITESPACE, char ignore = NO_IGNORE_CHAR)", "[Stream-parseFloat-03]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("The integer is prepended by whitespace chars")
   {
@@ -101,6 +104,7 @@ TEST_CASE ("Testing parseFloat(LookaheadMode lookahead = SKIP_WHITESPACE, char i
 TEST_CASE ("Testing parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore = 'a')", "[Stream-parseFloat-04]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("A float is contained in stream")
   {

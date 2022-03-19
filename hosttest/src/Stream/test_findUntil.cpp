@@ -16,6 +16,7 @@
 TEST_CASE ("Testing findUntil(const char *target, const char *terminator)", "[Stream-findUntil-01]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("'target' is contained in stream")
   {

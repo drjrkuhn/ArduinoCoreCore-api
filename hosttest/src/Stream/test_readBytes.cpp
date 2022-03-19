@@ -17,6 +17,7 @@
 TEST_CASE ("Testing readBytes(char *buffer, size_t length)", "[Stream-readBytes-01]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("the stream is empty")
   {

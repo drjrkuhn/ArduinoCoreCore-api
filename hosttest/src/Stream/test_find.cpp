@@ -17,13 +17,13 @@
 TEST_CASE ("Testing find(const char *target)", "[Stream-find-01]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("'target' is contained in stream")
   {
     mock << "This is a test string";
 
-    bool ret = mock.find("test");
-    REQUIRE(ret == true);
+    REQUIRE(mock.find("test") == true);
     REQUIRE(mock.readString() == arduino::String(" string"));
   }
   WHEN ("'target' is not contained in stream")
@@ -38,10 +38,11 @@ TEST_CASE ("Testing find(const char *target)", "[Stream-find-01]")
 TEST_CASE ("Testing find(const char *target, size_t length)", "[Stream-find-02]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("'target' is contained in stream")
   {
-    mock << "This is a test string";
+    mock << "teis is a test string";
 
     /* 'length' should actually be '4' or strlen("test"). I'd rather
      * think this API should not be exposed at all.
@@ -61,6 +62,7 @@ TEST_CASE ("Testing find(const char *target, size_t length)", "[Stream-find-02]"
 TEST_CASE ("Testing find(char target)", "[Stream-find-03]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("'target' is contained in stream")
   {

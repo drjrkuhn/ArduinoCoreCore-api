@@ -19,6 +19,7 @@ using namespace arduino;
 TEST_CASE ("Testing parseInt(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR)", "[Stream-parseInt-01]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("A positive integer is contained in stream")
   {
@@ -45,6 +46,7 @@ TEST_CASE ("Testing parseInt(LookaheadMode lookahead = SKIP_ALL, char ignore = N
 TEST_CASE ("Testing parseInt(LookaheadMode lookahead = SKIP_NONE, char ignore = NO_IGNORE_CHAR)", "[Stream-parseInt-02]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("A positive integer is contained in stream")
   {
@@ -69,6 +71,7 @@ TEST_CASE ("Testing parseInt(LookaheadMode lookahead = SKIP_NONE, char ignore = 
 TEST_CASE ("Testing parseInt(LookaheadMode lookahead = SKIP_WHITESPACE, char ignore = NO_IGNORE_CHAR)", "[Stream-parseInt-03]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("A integer is prepended by whitespace chars")
   {
@@ -81,6 +84,7 @@ TEST_CASE ("Testing parseInt(LookaheadMode lookahead = SKIP_WHITESPACE, char ign
 TEST_CASE ("Testing parseInt(LookaheadMode lookahead = SKIP_ALL, char ignore = 'a')", "[Stream-parseInt-04]")
 {
   StreamMock mock;
+  mock.setTimeout(10);
 
   WHEN ("A positive integer is contained in stream")
   {

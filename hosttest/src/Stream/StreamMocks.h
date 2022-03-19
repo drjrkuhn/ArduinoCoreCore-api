@@ -17,18 +17,13 @@
    * CLASS DECLARATION
    **************************************************************************************/
 
+const unsigned long CHAR_TIMEOUT_MS = 10;
+
+#include <iostream>
+
 class StreamMock : public arduino::Stream
 {
 public:
-
-	virtual int timedRead() override {	
-		return read();	
-	}
-
-	virtual int timedPeek() override {
-		return peek();
-	}
-
 	void operator << (char const* str) {
 		for (size_t c = 0; c < strlen(str); c++)
 			_stream.push_back(str[c]);

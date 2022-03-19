@@ -28,6 +28,11 @@ static void delayMicroseconds(unsigned long us)
 	boost::this_thread::sleep_for(boost::chrono::microseconds(us));
 }
 
+void yield(void) {
+	boost::this_thread::yield();
+}
+
+
 /* C++ prototypes */
 long map(long x, long in_min, long in_max, long out_min, long out_max)
 {
@@ -37,7 +42,6 @@ long map(long x, long in_min, long in_max, long out_min, long out_max)
 uint16_t makeWord(uint16_t w) { return w; }
 uint16_t makeWord(uint8_t h, uint8_t l) { return (h << 8) | l; }
 
-void yield(void) {}
 void init(void) {}
 void initVariant(void) {}
 

@@ -55,25 +55,22 @@ namespace arduino {
 	class Stream_base
 	{
 	protected:
+		// Default timedRead and timesPeek will block for a timeout (default 1sec) when
+		// there is no more data in the serial stream. Host implementations SHOULD
+		// override these to non-blocking wait functions
 		virtual int timedRead() = 0;
 		virtual int timedPeek() = 0;
-		virtual int peekNextDigit(LookaheadMode lookahead, bool detectDecimal) = 0;
 	public:
 		virtual int available() = 0;
 		virtual int read() = 0;
 		virtual int peek() = 0;
-		virtual bool find(const char* target) = 0;
 		virtual bool find(const char* target, size_t length) = 0;
-		virtual bool find(std::string target) = 0;
 		virtual bool find(char target) = 0;
-		virtual bool findUntil(const char* target, const char* terminator) = 0;
 		virtual bool findUntil(const char* target, size_t targetLen, const char* terminator, size_t termLen) = 0;
 		virtual long parseInt(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) = 0;
 		virtual float parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) = 0;
 		virtual size_t readBytes(char* buffer, size_t length) = 0;
 		virtual size_t readBytesUntil(char terminator, char* buffer, size_t length) = 0;
-		virtual String readString() = 0;
-		virtual String readStringUntil(char terminator) = 0;
 		virtual std::string readStdString() = 0;
 		virtual std::string readStdStringUntil(char terminator) = 0;
 	protected:
@@ -92,7 +89,7 @@ namespace arduino {
 		unsigned long _startMillis;  // used for timeout measurement
 		virtual int timedRead() override;    // private method to read stream with timeout
 		virtual int timedPeek() override;    // private method to peek stream with timeout
-		virtual int peekNextDigit(LookaheadMode lookahead, bool detectDecimal) override; // returns the next numeric digit in the stream or -1 if timeout
+		int peekNextDigit(LookaheadMode lookahead, bool detectDecimal); // returns the next numeric digit in the stream or -1 if timeout
 
 	public:
 		virtual int available() = 0;
@@ -106,18 +103,18 @@ namespace arduino {
 		void setTimeout(unsigned long timeout);  // sets maximum milliseconds to wait for stream data, default is 1 second
 		unsigned long getTimeout(void) { return _timeout; }
 
-		virtual bool find(const char* target) override;   // reads data from the stream until the target string is found
+		bool find(const char* target);   // reads data from the stream until the target string is found
 		bool find(const uint8_t* target) { return find((const char*)target); }
 		// returns true if target string is found, false if timed out (see setTimeout)
 
 		virtual bool find(const char* target, size_t length) override;   // reads data from the stream until the target string of given length is found
 		bool find(const uint8_t* target, size_t length) { return find((const char*)target, length); }
 		// returns true if target string is found, false if timed out
-		virtual bool find(const std::string target) override;
+		bool find(const std::string target) { return find(target.c_str(), target.length()); }
 
 		virtual bool find(char target) override { return find(&target, 1); }
 
-		virtual bool findUntil(const char* target, const char* terminator) override;   // as find but search ends if the terminator string is found
+		bool findUntil(const char* target, const char* terminator);   // as find but search ends if the terminator string is found
 		bool findUntil(const uint8_t* target, const char* terminator) { return findUntil((const char*)target, terminator); }
 
 		virtual bool findUntil(const char* target, size_t targetLen, const char* terminate, size_t termLen) override;   // as above but search ends if the terminate string is found
@@ -149,8 +146,8 @@ namespace arduino {
 		}
 
 		// Arduino String functions to be added here
-		virtual String readString() override;
-		virtual String readStringUntil(char terminator) override;
+		String readString() { return String(readStdString()); }
+		String readStringUntil(char terminator) { return String(readStdStringUntil(terminator)); }
 		virtual std::string readStdString() override;
 		virtual std::string readStdStringUntil(char terminator) override;
 

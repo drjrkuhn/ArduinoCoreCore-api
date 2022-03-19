@@ -36,6 +36,8 @@ int Stream::timedRead()
     do {
         c = read();
         if (c >= 0) return c;
+        yield();
+        delay(1);
     } while (millis() - _startMillis < _timeout);
     return -1;     // -1 indicates timeout
 }
@@ -48,6 +50,8 @@ int Stream::timedPeek()
     do {
         c = peek();
         if (c >= 0) return c;
+        yield();
+        delay(1);
     } while (millis() - _startMillis < _timeout);
     return -1;     // -1 indicates timeout
 }
@@ -101,11 +105,6 @@ bool  Stream::find(const char* target)
 bool Stream::find(const char* target, size_t length)
 {
     return findUntil(target, length, NULL, 0);
-}
-
-bool Stream::find(const std::string target)
-{
-    return findUntil(target.c_str(), target.length(), NULL, 0);
 }
 
 
@@ -236,37 +235,13 @@ size_t Stream::readBytesUntil(char terminator, char* buffer, size_t length)
     return index; // return number of characters, not including null terminator
 }
 
-String Stream::readString()
-{
-    String ret;
-    int c = timedRead();
-    while (c >= 0)
-    {
-        ret += (char)c;
-        c = timedRead();
-    }
-    return ret;
-}
-
-String Stream::readStringUntil(char terminator)
-{
-    String ret;
-    int c = timedRead();
-    while (c >= 0 && (char)c != terminator)
-    {
-        ret += (char)c;
-        c = timedRead();
-    }
-    return ret;
-}
-
 std::string Stream::readStdString()
 {
     std::string ret;
     int c = timedRead();
     while (c >= 0)
     {
-        ret += (char)c;
+        ret.append(1, (char)c);
         c = timedRead();
     }
     return ret;
@@ -278,7 +253,7 @@ std::string Stream::readStdStringUntil(char terminator)
     int c = timedRead();
     while (c >= 0 && (char)c != terminator)
     {
-        ret += (char)c;
+        ret.append(1, (char)c);
         c = timedRead();
     }
     return ret;
@@ -348,3 +323,69 @@ int Stream::findMulti(struct Stream::MultiTarget* targets, int tCount) {
     // unreachable
     return -1;
 }
+
+#if 0
+
+int findUntilAlgorithm(struct Stream::MultiTarget* targets, int tCount) {
+    // any zero length target string automatically matches and would make
+    // a mess of the rest of the algorithm.
+    struct Stream::MultiTarget* target = targets;
+    if (target->len <= 0)
+        return target - targets;
+
+    while (true) {
+        int c = timedRead();
+        if (c < 0)
+            return -1;
+
+        // the simple case is if we match, deal with that first.
+        if ((char)c == target->str[target->index]) {
+            if (++target->index == target->len)
+                return target - targets;
+            else
+                continue;
+        }
+
+        // if not we need to walk back and see if we could have matched further
+        // down the stream (ie '1112' doesn'target match the first position in '11112'
+        // but it will match the second position so we can'target just reset the current
+        // index to 0 when we find a mismatch.
+        if (target->index == 0)
+            continue;
+
+        int origIndex = target->index;
+        do {
+            --target->index;
+            // first check if current char works against the new current index
+            if ((char)c != target->str[target->index])
+                continue;
+
+            // if it's the only char then we're good, nothing more to check
+            if (target->index == 0) {
+                target->index++;
+                break;
+            }
+
+            // otherwise we need to check the rest of the found string
+            int diff = origIndex - target->index;
+            size_t i;
+            for (i = 0; i < target->index; ++i) {
+                if (target->str[i] != target->str[i + diff])
+                    break;
+            }
+
+            // if we successfully got through the previous loop then our current
+            // index is good.
+            if (i == target->index) {
+                target->index++;
+                break;
+            }
+
+            // otherwise we just try the next index
+        } while (target->index);
+
+    } // while (true)
+    // unreachable
+    return -1;
+}
+#endif
