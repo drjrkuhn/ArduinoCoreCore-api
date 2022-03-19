@@ -68,8 +68,8 @@ namespace arduino {
 		virtual bool find(char target) = 0;
 		virtual bool findUntil(const char* target, const char* terminator) = 0;
 		virtual bool findUntil(const char* target, size_t targetLen, const char* terminator, size_t termLen) = 0;
-		virtual long parseInt(LookaheadMode lookahead, char ignore) = 0;
-		virtual float parseFloat(LookaheadMode lookahead, char ignore) = 0;
+		virtual long parseInt(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) = 0;
+		virtual float parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR) = 0;
 		virtual size_t readBytes(char* buffer, size_t length) = 0;
 		virtual size_t readBytesUntil(char terminator, char* buffer, size_t length) = 0;
 		virtual String readString() = 0;
