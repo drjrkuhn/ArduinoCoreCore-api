@@ -23,21 +23,15 @@ namespace arduino {
 		Print_stdostream(OSTREAM& os) : _ostream(os) {}
 		OSTREAM& ostream() { return _ostream; }
 
-		/// write a single byte
 		virtual size_t write(const uint8_t c) override {
 			char cc = static_cast<char>(c);
 			return _ostream.rdbuf()->sputc(cc) == cc ? 1 : 0;
 		}
-		/// write multible bytes
+
 		virtual size_t write(const uint8_t* str, size_t n) override {
 			return _ostream.rdbuf()->sputn(reinterpret_cast<const char*>(str), n);
 		}
-		using Print::write;
-		using Print::print;
-		using Print::println;
-		using Print::flush;
 
-		/// number of bytes available in write buffer.
 		virtual int availableForWrite() override {
 			return std::numeric_limits<int>::max();
 		}
@@ -63,11 +57,11 @@ namespace arduino {
 		}
 		Print_stdstring()
 			: _oss(std::ios_base::out | std::ios_base::app), Print_stdostream(_oss) {
-			// NOTE: open in append mode so we don't overwrite current contents
 		}
+
 		std::string str() const { return _oss.str(); }
 		void str(const std::string s) { _oss.str(s); }
-		void clear() { _oss.str(""); _oss.clear(); }
+		void clear() { _oss.str(""); }
 
 		/// number of bytes available in write buffer. 
 		/// For stringstream it will return 0 just before reallocating more buffer space

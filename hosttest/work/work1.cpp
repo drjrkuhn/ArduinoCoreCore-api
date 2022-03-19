@@ -17,12 +17,13 @@ int main(int argc, char* argv[])
 
 using namespace std;
 
-class Stream_buf : public Stream {
+template <class IOSTREAM>
+class Stream_stdstream : public Stream {
 public:
-	Stream_buf(stringstream& ios) : _ios(ios) {
-		_canget = _ios.tellg() >= 0;
-		_canput = _ios.tellp() >= 0;
+	Stream_stdstream(IOSTREAM& ios) : _ios(ios) {
+		init(_ios);
 	}
+	IOSTREAM& ios() { return _ios; }
 
 	virtual size_t write(const uint8_t byte) override {
 		char cc = static_cast<char>(byte);
@@ -34,11 +35,6 @@ public:
 	virtual int availableForWrite() override {
 		return _canput ? std::numeric_limits<int>::max() : 0;
 	}
-
-	//using Print::write;
-	//using Print::print;
-	//using Print::println;
-	//using Print::flush;
 
 	virtual int available() override {
 		return _canget ? _ios.rdbuf()->in_avail() : 0;
@@ -56,14 +52,58 @@ public:
 
 protected:
 	virtual size_t checkget(size_t input) {
-		if (_canget && _ios.tellg() == _ios.tellp()) {
-			//_ios.str("");
-			;
-		}
 		return input;
 	}
-	stringstream& _ios;
+	void init(IOSTREAM& ios) { _canget = ios.tellg() >= 0; _canput = ios.tellp() >= 0; }
+	// protected default constructor for derived
+	struct no_init_tag {};
+	Stream_stdstream(IOSTREAM& ios, no_init_tag) : _ios(ios) {}
+
+	IOSTREAM& _ios;
 	bool _canget, _canput;
+};
+
+class Stream_stdstring : public Stream_stdstream<stringstream> {
+public:
+	Stream_stdstring(
+		const std::string str, ios_base::openmode which = std::ios_base::in | std::ios_base::out | std::ios_base::app)
+		: _ss(str, which), Stream_stdstream(_ss, (no_init_tag())) {
+		init(_ss);
+		// NOTE: open in append mode so we don't overwrite the intiial value
+	}
+	Stream_stdstring(ios_base::openmode which = std::ios_base::in | std::ios_base::out)
+		: _ss(which), Stream_stdstream(_ss, (no_init_tag())) {
+		init(_ss);
+		// NOTE: open in append mode so we don't overwrite the intiial value
+	}
+	std::string str() const { return _ss.str(); }
+	void str(const std::string s) { _ss.str(s); }
+	void clear() { _ss.str(""); }
+
+	std::string bufferStr() const {
+		string buf = _ss.str();
+		int len = buf.length(), g = _ios.tellg(), p = _ios.tellp();
+		if (p < 0) p = len;
+		bool samegp = g == p;
+		if (g < 0) g = 0;
+		int headlen = g;
+		int taillen = len - p;
+		string ptrs;
+		if (headlen - 1 > 0) ptrs.append(headlen - 1, '.');
+		ptrs.append(1, samegp ? '@' : '^');
+		ptrs.append(buf.substr(g, p - g));
+		if (!samegp) ptrs.append(1, 'v');
+		return ptrs;
+	}
+
+protected:
+	virtual size_t checkget(size_t input) override {
+		std::streampos g = _ios.tellg(), p = _ios.tellp();
+		if (p < 0) p = _ss.str().length();
+		if (g > 0 && g == p) clear();
+		return input;
+	}
+	stringstream _ss;
 };
 
 pair<string, string> ssformat(stringstream& ss)
@@ -79,7 +119,7 @@ pair<string, string> ssformat(stringstream& ss)
 		ptrs.append(1, g == p ? '&' : 'g');
 	}
 	if (nvalid > 0) ptrs.append(nvalid, '^');
-	if (g != p ) ptrs.append(1, 'p');
+	if (g != p) ptrs.append(1, 'p');
 	return pair<string, string>(str, ptrs);
 }
 
@@ -97,29 +137,27 @@ int main(int argc, char* argv[])
 
 	ios_base::openmode which = 0;
 	which |= ios_base::in;
-	which |= ios_base::out;
-	stringstream ss("123 hello", which);
-
-	Stream_buf stream(ss);
+	//which |= ios_base::out;
+	Stream_stdstring stream("c123", which);
 	stream.setTimeout(10);
 
 	stream.print("a 123 Hello ");
-	printss(ss);
+	cout << "\t\t\t" << stream.bufferStr() << endl;
 	stream.print("world");
-	printss(ss);
+	cout << "\t\t\t" << stream.bufferStr() << endl;
 	cout << "first char: " << char(stream.read()) << endl;
-	printss(ss);
+	cout << "\t\t\t" << stream.bufferStr() << endl;
 	cout << "first int: " << stream.parseInt() << endl;
-	printss(ss);
+	cout << "\t\t\t" << stream.bufferStr() << endl;
 	cout << "first word: '" << stream.readStdString() << "'" << endl;
-	printss(ss);
+	cout << "\t\t\t" << stream.bufferStr() << endl;
 	cout << "next word: '" << stream.readStdString() << "'" << endl;
 	//ss.str("");
-	printss(ss);
+	cout << "\t\t\t" << stream.bufferStr() << endl;
 	stream.print(" goodbye!");
-	printss(ss);
+	cout << "\t\t\t" << stream.bufferStr() << endl;
 	cout << "next word: '" << stream.readStdString() << "'" << endl;
-	printss(ss);
+	cout << "\t\t\t" << stream.bufferStr() << endl;
 
 	return 0;
 }
