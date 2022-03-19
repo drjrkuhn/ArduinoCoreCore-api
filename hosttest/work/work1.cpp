@@ -27,7 +27,6 @@ public:
 	virtual size_t write(const uint8_t byte) override {
 		char cc = static_cast<char>(byte);
 		return _canput && _ios.rdbuf()->sputc(cc) == cc ? 1 : 0;
-		//return _canput && _ios.put(cc) == cc && _ios.good() ? 1 : 0;
 	}
 	virtual size_t write(const uint8_t* str, size_t n) override {
 		return _canput ? _ios.rdbuf()->sputn(reinterpret_cast<const char*>(str), n) : 0;

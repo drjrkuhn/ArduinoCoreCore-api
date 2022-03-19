@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <Print.h>
-#include <Print_ostream.h>
+#include <Print_stdostream.h>
 #include "PrintMocks.h"
 
 /**************************************************************************************

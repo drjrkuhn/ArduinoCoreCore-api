@@ -12,39 +12,6 @@
 namespace arduino {
 
 	/**
-	 * Adapts a OSTREAM for printing single characters at a time.
-	 *
-	 * This version only uses the single-byte 'write' function of Print
-	 * to write to the OSTREAM.
-	 */
-	template <class OSTREAM>
-	class Print_stdostream_put : public Print {
-	public:
-		Print_stdostream_put(OSTREAM& os) : _ostream(os) {}
-		OSTREAM& ostream() { return _ostream; }
-
-		/// write a single byte
-		virtual size_t write(const uint8_t c) override {
-			_ostream.put(static_cast<const char>(c));
-			return _ostream.good() ? 1 : 0;
-		}
-		using Print::write;
-		using Print::print;
-		using Print::println;
-		using Print::flush;
-
-		/// number of bytes available in write buffer.
-		virtual int availableForWrite() override {
-			return std::numeric_limits<int>::max();
-		}
-
-		template<typename T>
-		OSTREAM& operator<< (T t) { return ostream() << t; }
-	protected:
-		OSTREAM& _ostream;
-	};
-
-	/**
 	 * Adapts a OSTREAM for printing.
 	 *
 	 * This version overrides both the single-byte 'write' and the
@@ -58,14 +25,12 @@ namespace arduino {
 
 		/// write a single byte
 		virtual size_t write(const uint8_t c) override {
-			_ostream.put(static_cast<const char>(c));
-			return _ostream.good() ? 1 : 0;
+			char cc = static_cast<char>(c);
+			return _ostream.rdbuf()->sputc(cc) == cc ? 1 : 0;
 		}
 		/// write multible bytes
 		virtual size_t write(const uint8_t* str, size_t n) override {
-			auto first = _ostream.tellp();
-			_ostream.write(reinterpret_cast<const char*>(str), n);
-			return _ostream.good() ? n : _ostream.tellp() - first;
+			return _ostream.rdbuf()->sputn(reinterpret_cast<const char*>(str), n);
 		}
 		using Print::write;
 		using Print::print;
