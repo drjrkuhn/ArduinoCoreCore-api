@@ -32,7 +32,7 @@
 #include "Printable.h"
 //#include "PluggableUSB.h"
 #include "Server.h"
-#include "String.h"
+#include "WString.h"  // renamed to WString.h to not conflict with stdlib string.h on case-insensitive compilers
 #include "Stream.h"
 #include "Udp.h"
 //#include "USBAPI.h"

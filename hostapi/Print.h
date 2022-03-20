@@ -56,15 +56,17 @@ class Print : public Print_base
   public:
     Print() : write_error(0) {}
 
+    virtual size_t write(uint8_t) override = 0;
+    virtual size_t write(const uint8_t* buffer, size_t size) override = 0;
+
     int getWriteError() { return write_error; }
     void clearWriteError() { setWriteError(0); }
 
-    virtual size_t write(uint8_t) = 0;
     size_t write(const char *str) {
       if (str == NULL) return 0;
       return write((const uint8_t *)str, strlen(str));
     }
-    virtual size_t write(const uint8_t *buffer, size_t size);
+    
     // iterator version of write
     template <typename CharIT, typename std::enable_if<is_char_iterator_v<CharIT>, bool>::type = false>
     size_t write_from(CharIT begin, CharIT end) {

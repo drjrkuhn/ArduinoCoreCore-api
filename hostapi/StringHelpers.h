@@ -6,6 +6,7 @@
 #include <string>
 #include <type_traits>
 #include <algorithm>
+#include <cmath>
 
 namespace arduino {
 
@@ -76,8 +77,8 @@ namespace arduino {
 		if (decimalPlaces < 0)
 			decimalPlaces = 2;
 
-		if (isnan(number)) return dest.append("nan");
-		if (isinf(number)) return dest.append("inf");
+		if (std::isnan(number)) return dest.append("nan");
+		if (std::isinf(number)) return dest.append("inf");
 		if (number > 4294967040.0) return dest.append("ovf");  // constant determined empirically
 		if (number < -4294967040.0) return dest.append("ovf");  // constant determined empirically
 														 // Handle negative numbers
