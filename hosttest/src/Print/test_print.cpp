@@ -11,7 +11,7 @@
 
 #include <Print.h>
 #include <Printable.h>
-#include <Print_stdostream.h>
+#include <Print_std.h>
 #include "PrintMocks.h"
 
   /**************************************************************************************
@@ -203,3 +203,17 @@ TEST_CASE("Print::print(const_iterator begin, const_iterator end)", "[Print-prin
 
     REQUIRE(mock.str() == "String");
 }
+
+TEST_CASE("operator<<(ostream, Print_stdstring)", "[Print-print-15]")
+{
+    arduino::Print_stdstring mock;
+    mock.print("Hello ");
+    mock.print(200);
+    mock.print(' ');
+    mock.print(10.0);
+
+    std::stringstream os;
+    os << mock;
+    REQUIRE(os.str() == mock.str());
+}
+

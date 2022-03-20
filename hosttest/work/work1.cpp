@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 }
 #endif
 
-#if 1
+#if 0
 #include <iostream>
 #include <sstream>
 #include <Stream.h>
@@ -163,3 +163,33 @@ int main(int argc, char* argv[])
 }
 #endif
 
+
+#if 1
+#include <iostream>
+#include <sstream>
+
+class SillyInt {
+public:
+	SillyInt(const int n) : _silly(n) {}
+
+	friend std::ostream& operator<<(std::ostream& os, SillyInt const& myObject) {
+		os << "Silly integer = ";
+		os << myObject._silly;
+		return os;
+	}
+
+protected:
+	int _silly;
+};
+
+int main(int argc, char* argv[])
+{
+	std::string name(argv[0]);
+	std::cout << "running " << name.substr(name.find_last_of("\\/") + 1) << std::endl;
+
+	using namespace std;
+	SillyInt baz(10);
+	cout << baz << endl;
+	return 0;
+}
+#endif

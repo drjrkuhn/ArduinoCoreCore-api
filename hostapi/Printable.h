@@ -23,6 +23,7 @@
 namespace arduino {
 
 class Print;
+class Print_stdstring;
 
 /** The Printable class provides a way for new classes to allow themselves to be printed.
     By deriving from Printable and implementing the printTo method, it will then be possible
@@ -36,4 +37,9 @@ class Printable
     virtual size_t printTo(Print& p) const = 0;
 };
 
-}
+} // namespace arduino
+
+#include <ostream>
+
+std::ostream& operator<<(std::ostream& os, arduino::Printable const& that);
+

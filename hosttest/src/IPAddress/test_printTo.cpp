@@ -8,18 +8,27 @@
 
 #include <catch.hpp>
 
-#include <Print.h>
+#include <IPAddress.h>
 #include <Print_std.h>
-#include "PrintMocks.h"
 
 /**************************************************************************************
  * TEST CODE
  **************************************************************************************/
 
-TEST_CASE ("Clear write error should set the error code back to 0", "[Print-clearWriteError-01]")
+TEST_CASE ("Print IPAddress via print method", "[IPAddress-printTo-01]")
 {
-  Print_basic  mock;
-  mock.mock_setWriteError(5);
-  mock.clearWriteError();
-  REQUIRE(mock.getWriteError() == 0);
+  arduino::Print_stdstring mock;
+  arduino::IPAddress const ip(192,168,1,2);
+
+  mock.print(ip);
+
+  REQUIRE(mock.str()  == "192.168.1.2");
+}
+
+TEST_CASE("Print IPAddress via operator<<", "[IPAddress-printTo-02]")
+{
+	arduino::IPAddress const ip(192, 168, 1, 2);
+	std::stringstream os;
+	os << ip;
+	REQUIRE(os.str() == "192.168.1.2");
 }

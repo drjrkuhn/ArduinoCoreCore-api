@@ -8,18 +8,16 @@
 
 #include <catch.hpp>
 
-#include <Print.h>
-#include <Print_std.h>
-#include "PrintMocks.h"
+#include <IPAddress.h>
 
 /**************************************************************************************
  * TEST CODE
  **************************************************************************************/
 
-TEST_CASE ("Clear write error should set the error code back to 0", "[Print-clearWriteError-01]")
+TEST_CASE ("Testing IPAddress::operator uint32_t() const", "[IPAddress-Operator-()-01]")
 {
-  Print_basic  mock;
-  mock.mock_setWriteError(5);
-  mock.clearWriteError();
-  REQUIRE(mock.getWriteError() == 0);
+  arduino::IPAddress ip(129,168,1,2);
+  uint32_t const val_expected = ip;
+  uint32_t const val_actual = (129 | (168 << 8) | (1 << 16) | (2 << 24));
+  REQUIRE(val_expected == val_actual);
 }

@@ -8,6 +8,7 @@
 #include <ios>
 #include <sstream>
 #include <type_traits>
+#include <Print.h>
 
 namespace arduino {
 
@@ -49,7 +50,7 @@ namespace arduino {
 	 * as its stream. Access the current contents with @see str().
 	 * Clear the buffer with @see clear().
 	 */
-	class Print_stdstring : public Print_stdostream<std::ostringstream> {
+	class Print_stdstring : public Print_stdostream<std::ostringstream>, public Printable {
 	public:
 		Print_stdstring(const std::string str)
 			: _oss(str, std::ios_base::out | std::ios_base::app), Print_stdostream(_oss) {
@@ -67,6 +68,9 @@ namespace arduino {
 		/// For stringstream it will return 0 just before reallocating more buffer space
 		virtual int availableForWrite() override {
 			return str().capacity() - str().length();
+		}
+		virtual size_t printTo(Print& p) const override {
+			return p.write(_oss.str());
 		}
 	protected:
 		std::ostringstream _oss;
