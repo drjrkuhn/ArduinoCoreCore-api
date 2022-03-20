@@ -190,7 +190,7 @@ public:
 	print_writestream(ostream& os) : ostream_(os) {}
 protected:
 	virtual size_t write(char c) override {
-		ostream_.put(c);	
+		ostream_.put(c);
 		return ostream_.good() ? 1 : 0;
 	}
 	virtual size_t write(const char* str, size_t n) {
@@ -263,7 +263,7 @@ int main(int argc, char* argv[])
 	}
 	end = systime::millis();
 	double avg = (end - start) / double(N);
-	cout << N << " delays of " << delayms << " ms = " << (N*delayms) << " total ms" << endl;
+	cout << N << " delays of " << delayms << " ms = " << (N * delayms) << " total ms" << endl;
 	cout << "actual " << (end - start) << " ms total" << endl;
 	cout << "average of " << avg << " ms per delay" << endl;
 
@@ -301,7 +301,7 @@ protected:
 	string buffer_;
 };
 
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
 	mystr hello("hello");
 	mystr failstr(NULL);
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
 	cout << "NULL initialized: " << string(failstr) << endl;
 
 	cout << "== comparison tests ==" << endl;
-	string empty1="", empty2="", aaa="aaa", bbb="bbb";
+	string empty1 = "", empty2 = "", aaa = "aaa", bbb = "bbb";
 	cout << "aaa.compare bbb: " << aaa.compare(bbb) << endl;
 	cout << "bbb.compare aaa: " << bbb.compare(aaa) << endl;
 	cout << "empty1.compare empty2: " << empty1.compare(empty2) << endl;
@@ -340,11 +340,11 @@ int main(int argc, char* argv[])
 template <class D>
 struct basic_Base {
 
-	const D& self() const {	return static_cast<const D&>(*this); }
+	const D& self() const { return static_cast<const D&>(*this); }
 	D& self() { return static_cast<D&>(*this); }
 
-	int geti() { 
-		return self().geti__(); 
+	int geti() {
+		return self().geti__();
 	}
 	int geti__() { return 0; }
 };
@@ -376,7 +376,7 @@ int main(int argc, char* argv[])
 #endif
 
 
-#if 1
+#if 0
 
 #include <vector>
 
@@ -400,10 +400,11 @@ void print(const char* buf, size_t length) {
 
 template <typename IT, typename std::enable_if<
 	is_char_iterator_v<IT>, bool>::type = false>
-void print(IT begin, IT end) {
-	typename iterator_traits<IT>::pointer buf = &(*begin);
-	typename iterator_traits<IT>::difference_type size = end - begin;
-	print(buf, size);
+	void print(IT begin, IT end) {
+	//typename iterator_traits<IT>::pointer buf = &(*begin);
+	//typename iterator_traits<IT>::difference_type size = end - begin;
+	//print(buf, size);
+	print(&begin[0], end - begin);
 }
 
 int main(int argc, char* argv[])
@@ -417,7 +418,7 @@ int main(int argc, char* argv[])
 	print(world.cbegin(), world.cend());
 	cout << endl;
 
-	vector<char> cvec{ 'a','b','c','d','e'};
+	vector<char> cvec{ 'a','b','c','d','e' };
 	print(cvec.cbegin(), cvec.cend());
 	cout << endl;
 
@@ -428,3 +429,77 @@ int main(int argc, char* argv[])
 	return 0;
 }
 #endif
+
+#if 1
+
+#include <sstream>
+#include <algorithm>
+
+using namespace std;
+
+std::istream_iterator<char> read_until(std::istream_iterator<char> begin, std::istream_iterator<char> end, std::string needle) {
+	if (needle.size() == 0) return begin;
+	std::string buff;
+	buff.reserve(needle.size());
+	std::istream_iterator<char> it = std::find_if(begin, end, [&](char c) {
+		buff.push_back(c);
+		if (buff.size() < needle.size()) {
+			return false;
+		}
+		if (buff == needle)
+			return true;
+		buff.erase(buff.begin());
+		return false;
+		});
+	return it;
+}
+
+
+std::istream_iterator<char> read_until(std::istream_iterator<char> begin, std::string needle) {
+	if (needle.size() == 0) return begin;
+	std::string buff;
+	buff.reserve(needle.size());
+	std::istream_iterator<char> eof;
+	std::istream_iterator<char> it = std::find_if(begin, eof, [&](char c) {
+		buff.push_back(c);
+		if (buff.size() < needle.size()) {
+			return false;
+		}
+		if (buff == needle)
+			return true;
+		buff.erase(buff.begin());
+		return false;
+		});
+	return it;
+}
+
+int main(int argc, char* argv[])
+{
+	stringstream mock("a test string");
+	noskipws(mock);
+	string tofind("tes");
+	istream_iterator<char> eof;
+	istream_iterator<char> begin(mock);
+	istream_iterator<char> pos = read_until(begin, tofind);
+	//cout << "pos before " << mock.tellg();
+	//for (int i=0; i<3; i++)	mock.get();
+	//cout << " after " << mock.tellg() << endl;
+
+	stringstream remain;
+	remain << mock.rdbuf();
+	mock.sync();
+	cout << "found: " << bool(pos != eof) << endl;
+	cout << "remain " << remain.str() << endl;
+	cout << "mock.str " << mock.str() << endl;
+	cout << "mock.substr " << mock.str().substr(mock.tellg()) << endl;
+	cout << "mock.tellg: " << mock.tellg() << endl;
+	cout << "mock.rdbuf: " << mock.rdbuf() << endl;
+	cout << "mock.rdbuf->str " << mock.rdbuf()->str() << endl;
+	//cout << "remaining: ";
+	//std::copy(istream_iterator<char>(mock,, eof, ostream_iterator<char>(cout));
+	//cout << endl;
+
+	return 0;
+}
+#endif
+
