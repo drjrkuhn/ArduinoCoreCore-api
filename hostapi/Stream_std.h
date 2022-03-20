@@ -55,12 +55,12 @@ namespace arduino {
 	public:
 		Stream_stdstring(
 			const std::string str, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out | std::ios_base::app)
-			: _ss(str, which), Stream_stdstream(_ss, (no_init_tag())) {
+			: Stream_stdstream(_ss, (no_init_tag())), _ss(str, which) {
 			init(_ss);
 			// NOTE: open in append mode so we don't overwrite the intiial value
 		}
 		Stream_stdstring(std::ios_base::openmode which = std::ios_base::in | std::ios_base::out)
-			: _ss(which), Stream_stdstream(_ss, (no_init_tag())) {
+			: Stream_stdstream(_ss, (no_init_tag())), _ss(which) {
 			init(_ss);
 			// NOTE: open in append mode so we don't overwrite the intiial value
 		}
@@ -73,19 +73,19 @@ namespace arduino {
 			long len = static_cast<long>(buf.length());
 			long g = static_cast<long>(_ios.tellg());
 			long p = static_cast<long>(_ios.tellp());
-			if (p < 0) 
+			if (p < 0)
 				p = len;
 			bool samegp = g == p;
-			if (g < 0) 
+			if (g < 0)
 				g = 0;
 			long headlen = g;
 			long taillen = len - p;
 			std::string ptrs;
-			if (headlen - 1 > 0) 
+			if (headlen - 1 > 0)
 				ptrs.append((headlen - 1), '.');
 			ptrs.append(1, samegp ? '@' : '^');
 			ptrs.append(buf.substr(g, p - g));
-			if (!samegp) 
+			if (!samegp)
 				ptrs.append(1, 'v');
 			return ptrs;
 		}

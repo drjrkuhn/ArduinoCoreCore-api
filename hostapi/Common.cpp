@@ -3,6 +3,8 @@
 #include <boost/chrono.hpp>
 #include <boost/thread.hpp>
 
+using namespace arduino;
+
 using time_point = boost::chrono::time_point<boost::chrono::steady_clock>;
 
 static time_point main_start_time = boost::chrono::steady_clock::now();

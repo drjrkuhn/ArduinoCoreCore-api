@@ -73,9 +73,6 @@ public:
 	String(const String &str);
 	String(const std::string& str);
 	String(const __FlashStringHelper *str);
-	#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__) || _MSVC_LANG >= 201402L
-	String(String &&rval);
-	#endif
 	explicit String(char c);
 	explicit String(unsigned char, unsigned char base=10);
 	explicit String(int, unsigned char base=10);
@@ -85,6 +82,12 @@ public:
 	explicit String(float, unsigned char decimalPlaces=2);
 	explicit String(double, unsigned char decimalPlaces=2);
 	~String(void);
+
+#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__) || _MSVC_LANG >= 201402L
+	// move constructor and assignment
+	String(String&& rval);
+	String& operator = (String&& rval);
+#endif
 
 	// memory management
 	// return true on success, false on failure (in which case, the string
@@ -100,9 +103,6 @@ public:
 	String & operator = (const char *cstr);
 	String & operator = (const __FlashStringHelper *str);
 	String & operator = (const std::string& str);
-	#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__) || _MSVC_LANG >= 201402L
-	String & operator = (String &&rval);
-	#endif
 
 	// concatenate (works w/ built-in types)
 

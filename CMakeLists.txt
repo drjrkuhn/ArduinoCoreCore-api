@@ -1,15 +1,16 @@
 cmake_minimum_required (VERSION 3.20)
-#project(ArduinoAPI)
+project(ArduinoHost)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CORELIB_NAME "${PROJECT_NAME}-lib")
+
+message("root  CORELIB_NAME = ${CORELIB_NAME}")
+
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-find_package(doctest CONFIG REQUIRED)
 find_package(Boost 1.77 REQUIRED COMPONENTS thread chrono)
-include("${doctest_DIR}/doctest.cmake")
 
 add_subdirectory(hostapi)
 add_subdirectory(hosttest)

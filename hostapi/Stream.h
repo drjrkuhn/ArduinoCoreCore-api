@@ -61,6 +61,7 @@ namespace arduino {
 		virtual int timedRead() = 0;
 		virtual int timedPeek() = 0;
 	public:
+		virtual ~Stream_base() = default;
 		virtual int available() = 0;
 		virtual int read() = 0;
 		virtual int peek() = 0;

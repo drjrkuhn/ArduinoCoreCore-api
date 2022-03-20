@@ -1,4 +1,14 @@
-add_library(ArduinoAPIhost
+
+cmake_minimum_required(VERSION 3.2)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
+
+##########################################################################
+message("hostapi  CORELIB_NAME = ${CORELIB_NAME}")
+
+project(${CORELIB_NAME})
+
+
+add_library(${CORELIB_NAME}
 	ArduinoAPI.h
 	Binary.h
 	Client.h
@@ -36,12 +46,12 @@ add_library(ArduinoAPIhost
 #add_compile_definitions(USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
 #target_compile_definitions(ArduinoAPIhost  USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
 
-target_include_directories(ArduinoAPIhost
+target_include_directories(${CORELIB_NAME}
 	PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set_property(TARGET ArduinoAPIhost PROPERTY CXX_STANDARD 14)
-target_link_libraries(ArduinoAPIhost PRIVATE Boost::boost Boost::chrono Boost::thread)
+set_property(TARGET ${CORELIB_NAME} PROPERTY CXX_STANDARD 14)
+target_link_libraries(${CORELIB_NAME} PRIVATE Boost::boost Boost::chrono Boost::thread)
 
 

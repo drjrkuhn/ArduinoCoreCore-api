@@ -53,11 +53,11 @@ namespace arduino {
 	class Print_stdstring : public Print_stdostream<std::ostringstream>, public Printable {
 	public:
 		Print_stdstring(const std::string str)
-			: _oss(str, std::ios_base::out | std::ios_base::app), Print_stdostream(_oss) {
+			: Print_stdostream(_oss), _oss(str, std::ios_base::out | std::ios_base::app) {
 			// NOTE: open in append mode so we don't overwrite the intiial value
 		}
 		Print_stdstring()
-			: _oss(std::ios_base::out | std::ios_base::app), Print_stdostream(_oss) {
+			: Print_stdostream(_oss), _oss(std::ios_base::out | std::ios_base::app) {
 		}
 
 		std::string str() const { return _oss.str(); }

@@ -1,4 +1,5 @@
 
+#define TEMPLATE 0
 #if TEMPLATE
 #include <iostream>
 int main(int argc, char* argv[])
@@ -182,7 +183,7 @@ protected:
 	int _silly;
 };
 
-int main(int argc, char* argv[])
+int main(int, char* argv[])
 {
 	std::string name(argv[0]);
 	std::cout << "running " << name.substr(name.find_last_of("\\/") + 1) << std::endl;
