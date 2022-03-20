@@ -35,19 +35,7 @@
 
 namespace arduino {
 
-class Print_base
-{
-public:
-    virtual ~Print_base() = default;
-    virtual size_t write(const uint8_t) = 0;
-    virtual size_t write(const uint8_t* buffer, size_t size) = 0;
-
-    virtual size_t write(const std::string& str) = 0;
-    virtual int availableForWrite() = 0;
-    virtual void flush() = 0;
-};
-
-class Print : public Print_base
+class Print
 {
   private:
       int write_error;
@@ -55,8 +43,15 @@ class Print : public Print_base
       void setWriteError(int err = 1) { write_error = err; }
   public:
     Print() : write_error(0) {}
+    virtual ~Print() = default;
 
-    virtual size_t write(const uint8_t* buffer, size_t size) override;
+    virtual size_t write(const uint8_t) = 0;
+    virtual size_t write(const uint8_t * buffer, size_t size);
+    // default to zero, meaning "a single write may block"
+    // should be overridden by subclasses with buffering
+    virtual int availableForWrite() { return 0; }
+    virtual void flush() { /* Empty implementation for backward compatibility */ }
+
     int getWriteError() { return write_error; }
     void clearWriteError() { setWriteError(0); }
 
@@ -70,16 +65,13 @@ class Print : public Print_base
     size_t write_from(CharIT begin, CharIT end) {
         return write(&begin[0], end - begin);
     }
-    size_t write(const std::string& str) override {
+    size_t write(const std::string& str) {
         return write_from(str.begin(), str.end());
     }
     size_t write(const char *buffer, size_t size) {
       return write((const uint8_t *)buffer, size);
     }
 
-    // default to zero, meaning "a single write may block"
-    // should be overridden by subclasses with buffering
-    virtual int availableForWrite() override { return 0; }
 
     size_t print(const __FlashStringHelper *);
     size_t print(const String &);
@@ -122,7 +114,6 @@ class Print : public Print_base
     size_t println(const Printable&);
     size_t println(void);
 
-    virtual void flush() override { /* Empty implementation for backward compatibility */ }
 };
 
 }

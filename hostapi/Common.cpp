@@ -3,10 +3,10 @@
 #include <boost/chrono.hpp>
 #include <boost/thread.hpp>
 
-using namespace arduino;
+
+namespace arduino {
 
 using time_point = boost::chrono::time_point<boost::chrono::steady_clock>;
-
 static time_point main_start_time = boost::chrono::steady_clock::now();
 
 unsigned long millis() {
@@ -64,3 +64,5 @@ uint8_t shiftIn(pin_size_t dataPin, pin_size_t clockPin, BitOrder bitOrder) { re
 void attachInterrupt(pin_size_t interruptNumber, voidFuncPtr callback, PinStatus mode) {}
 void attachInterruptParam(pin_size_t interruptNumber, voidFuncPtrParam callback, PinStatus mode, void* param) {}
 void detachInterrupt(pin_size_t interruptNumber) {}
+
+} // namespace
