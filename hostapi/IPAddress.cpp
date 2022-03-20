@@ -73,7 +73,7 @@ bool IPAddress::fromString(const char *address)
                 /* No value between dots, e.g. '1..' */
                 return false;
             }
-            _address.bytes[dots++] = acc;
+            _address.bytes[dots++] = static_cast<uint8_t>(acc);
             acc = -1;
         }
         else
@@ -91,7 +91,7 @@ bool IPAddress::fromString(const char *address)
         /* No value between dots, e.g. '1..' */
         return false;
     }
-    _address.bytes[3] = acc;
+    _address.bytes[3] = static_cast<uint8_t>(acc);
     return true;
 }
 

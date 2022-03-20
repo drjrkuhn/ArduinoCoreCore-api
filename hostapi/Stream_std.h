@@ -25,14 +25,14 @@ namespace arduino {
 		}
 
 		virtual int available() override {
-			return _canget ? _ios.rdbuf()->in_avail() : 0;
+			return static_cast<int>(_canget ? _ios.rdbuf()->in_avail() : 0);
 		}
 
 		virtual int read() override {
-			return _canget ? checkget(_ios.rdbuf()->sbumpc()) : -1;
+			return static_cast<int>(_canget ? checkget(_ios.rdbuf()->sbumpc()) : -1);
 		}
 		virtual int peek() override {
-			return _canget ? checkget(_ios.rdbuf()->sgetc()) : -1;
+			return static_cast<int>(_canget ? checkget(_ios.rdbuf()->sgetc()) : -1);
 		}
 		virtual size_t readBytes(char* buffer, size_t length) override {
 			return _canget ? checkget(_ios.rdbuf()->sgetn(buffer, length)) : 0;
@@ -70,17 +70,23 @@ namespace arduino {
 
 		std::string bufferStr() const {
 			std::string buf = _ss.str();
-			int len = buf.length(), g = _ios.tellg(), p = _ios.tellp();
-			if (p < 0) p = len;
+			long len = static_cast<long>(buf.length());
+			long g = static_cast<long>(_ios.tellg());
+			long p = static_cast<long>(_ios.tellp());
+			if (p < 0) 
+				p = len;
 			bool samegp = g == p;
-			if (g < 0) g = 0;
-			int headlen = g;
-			int taillen = len - p;
+			if (g < 0) 
+				g = 0;
+			long headlen = g;
+			long taillen = len - p;
 			std::string ptrs;
-			if (headlen - 1 > 0) ptrs.append(headlen - 1, '.');
+			if (headlen - 1 > 0) 
+				ptrs.append((headlen - 1), '.');
 			ptrs.append(1, samegp ? '@' : '^');
 			ptrs.append(buf.substr(g, p - g));
-			if (!samegp) ptrs.append(1, 'v');
+			if (!samegp) 
+				ptrs.append(1, 'v');
 			return ptrs;
 		}
 

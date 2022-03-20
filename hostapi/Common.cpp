@@ -9,12 +9,12 @@ static time_point main_start_time = boost::chrono::steady_clock::now();
 
 unsigned long millis() {
 	using namespace boost;
-	return chrono::duration_cast<chrono::milliseconds>(boost::chrono::steady_clock::now() - main_start_time).count();
+	return static_cast<unsigned long>(chrono::duration_cast<chrono::milliseconds>(boost::chrono::steady_clock::now() - main_start_time).count());
 }
 
 unsigned long micros() {
 	using namespace boost;
-	return chrono::duration_cast<chrono::microseconds>(boost::chrono::steady_clock::now() - main_start_time).count();
+	return static_cast<unsigned long>(chrono::duration_cast<chrono::microseconds>(boost::chrono::steady_clock::now() - main_start_time).count());
 }
 
 void delay(unsigned long ms)

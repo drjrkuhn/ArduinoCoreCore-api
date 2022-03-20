@@ -26,7 +26,7 @@ namespace arduino {
 		do {
 			numT digit = number % base;
 			number = number / base;
-			dest.push_back(digit < 10 ? digit + '0' : digit + 'A' - 10);
+			dest.push_back(static_cast<char>(digit < 10 ? digit + '0' : digit + 'A' - 10));
 		} while (number != 0);
 		if (!reversed)
 			std::reverse(dest.begin() + startlen, dest.end());

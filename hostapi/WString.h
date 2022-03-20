@@ -91,7 +91,7 @@ public:
 	// is left unchanged).  reserve(0), if successful, will validate an
 	// invalid string (i.e., "if (s)" will be true afterwards)
 	bool reserve(unsigned int size);
-	inline unsigned int length(void) const {return buffer.length();}
+	inline unsigned int length(void) const {return static_cast<unsigned int>(buffer.length());}
 
 	// creates a copy of the assigned value.  if the value is null or
 	// invalid, or if the memory allocation fails, the string will be
@@ -230,7 +230,7 @@ public:
 	int lastIndexOf( const String &str, unsigned int fromIndex ) const;
 	int lastIndexOf(const std::string& str) const;
 	int lastIndexOf(const std::string& str, unsigned int fromIndex) const;
-	String substring( unsigned int beginIndex ) const { return substring(beginIndex, buffer.length()); };
+	String substring( unsigned int beginIndex ) const { return substring(beginIndex, static_cast<unsigned int>(buffer.length())); };
 	String substring( unsigned int beginIndex, unsigned int endIndex ) const;
 
 	// modification

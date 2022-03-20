@@ -20,7 +20,7 @@
 
 #if 1
 
-#include <Stream_stdstream.h>
+#include <Stream_std.h>
 
 class StreamMock : public arduino::Stream_stdstring 
 {

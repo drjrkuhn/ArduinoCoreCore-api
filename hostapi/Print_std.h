@@ -67,7 +67,7 @@ namespace arduino {
 		/// number of bytes available in write buffer. 
 		/// For stringstream it will return 0 just before reallocating more buffer space
 		virtual int availableForWrite() override {
-			return str().capacity() - str().length();
+			return static_cast<int>(str().capacity() - str().length());
 		}
 		virtual size_t printTo(Print& p) const override {
 			return p.write(_oss.str());

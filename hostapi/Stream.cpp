@@ -198,7 +198,7 @@ float Stream::parseFloat(LookaheadMode lookahead, char ignore)
     if (isNegative)
         value = -value;
 
-    return value;
+    return float(value);
 }
 
 // read characters from stream into buffer
@@ -264,7 +264,7 @@ int Stream::findMulti(struct Stream::MultiTarget* targets, int tCount) {
     // a mess of the rest of the algorithm.
     for (struct MultiTarget* t = targets; t < targets + tCount; ++t) {
         if (t->len <= 0)
-            return t - targets;
+            return static_cast<int>(t - targets);
     }
 
     while (1) {
@@ -276,7 +276,7 @@ int Stream::findMulti(struct Stream::MultiTarget* targets, int tCount) {
             // the simple case is if we match, deal with that first.
             if ((char)c == t->str[t->index]) {
                 if (++t->index == t->len)
-                    return t - targets;
+                    return static_cast<int>(t - targets);
                 else
                     continue;
             }
@@ -288,7 +288,7 @@ int Stream::findMulti(struct Stream::MultiTarget* targets, int tCount) {
             if (t->index == 0)
                 continue;
 
-            int origIndex = t->index;
+            size_t origIndex = t->index;
             do {
                 --t->index;
                 // first check if current char works against the new current index
@@ -302,7 +302,7 @@ int Stream::findMulti(struct Stream::MultiTarget* targets, int tCount) {
                 }
 
                 // otherwise we need to check the rest of the found string
-                int diff = origIndex - t->index;
+                size_t diff = origIndex - t->index;
                 size_t i;
                 for (i = 0; i < t->index; ++i) {
                     if (t->str[i] != t->str[i + diff])

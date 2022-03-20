@@ -190,7 +190,7 @@ String & String::operator = (String &&rval)
 String & String::operator = (const char *cstr)
 {
 	if (cstr) 
-		copy(cstr, strlen(cstr));
+		copy(cstr, static_cast<unsigned int>(strlen(cstr)));
 	else 
 		buffer.clear();
 	return *this;
@@ -200,7 +200,7 @@ String & String::operator = (const __FlashStringHelper *pstr)
 {
 	const char* cstr = reinterpret_cast<const char*>(pstr);
 	if (cstr)
-		copy(cstr, strlen(cstr));
+		copy(cstr, static_cast<unsigned int>(strlen(cstr)));
 	else
 		buffer.clear();
 	return *this;
@@ -237,7 +237,7 @@ bool String::concat(const char *cstr, unsigned int length)
 bool String::concat(const char *cstr)
 {
 	if (!cstr) return false;
-	return concat(cstr, strlen(cstr));
+	return concat(cstr, static_cast<unsigned int>(strlen(cstr)));
 }
 
 bool String::concat(char c)
@@ -492,23 +492,13 @@ char String::operator[]( unsigned int index ) const
 
 void String::getBytes(unsigned char *buf, unsigned int bufsize, unsigned int index) const
 {
-	int len = length();
-	//if (!bufsize || !buf) return;
-	//if (index >= length()) {
-	//	buf[0] = 0;
-	//	return;
-	//} else {
-	//	unsigned int n = bufsize - 1;
-	//	if (n > len - index) n = len - index;
-	//	std::copy_n(buffer.begin() + index, n, reinterpret_cast<char*>(buf));
-	//	buf[n] = 0;
-	//}
+	size_t len = length();
 	if (!bufsize || !buf) return;
 	if (index >= len) {
 		buf[0] = 0;
 		return;
 	}
-	unsigned int n = bufsize - 1;
+	size_t n = bufsize - 1;
 	if (n > len - index) n = len - index;
 	strncpy((char*)buf, buffer.c_str() + index, n);
 	buf[n] = 0;
@@ -572,14 +562,14 @@ int String::lastIndexOf(const String &s2, unsigned int fromIndex) const
 
 int String::lastIndexOf(const std::string& s2) const
 {
-	return lastIndexOf(s2, length() - s2.length());
+	return lastIndexOf(s2, static_cast<unsigned int>(length() - s2.length()));
 }
 
 int String::lastIndexOf(const std::string& s2, unsigned int fromIndex) const
 {
-	int len = length(), s2len = s2.length();
+	size_t len = length(), s2len = s2.length();
 	if (s2len == 0 || len == 0 || s2len > len) return -1;
-	if (fromIndex >= len) fromIndex = len - 1;
+	if (fromIndex >= len) fromIndex = static_cast<unsigned int>(len - 1);
 	return posToIndex(buffer.rfind(s2, indexToPos(fromIndex)));
 }
 
