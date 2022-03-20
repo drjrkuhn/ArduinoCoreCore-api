@@ -12,5 +12,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Boost 1.77 REQUIRED COMPONENTS thread chrono)
 
-add_subdirectory(hostapi)
-add_subdirectory(hosttest)
+add_subdirectory(api)
+add_subdirectory(test)
