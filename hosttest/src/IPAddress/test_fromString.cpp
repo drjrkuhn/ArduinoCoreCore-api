@@ -8,7 +8,7 @@
 
 #include <catch.hpp>
 
-#include <String.h>
+#include <WString.h>
 #include <IPAddress.h>
 
 /**************************************************************************************

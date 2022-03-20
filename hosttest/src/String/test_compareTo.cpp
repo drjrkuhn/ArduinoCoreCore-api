@@ -9,8 +9,12 @@
 #include <catch.hpp>
 
 #include <WString.h>
+#include <Common.h>
 
-//#include "StringPrinter.h"
+// version of strcmp that returns only -1, 0, or 1
+int clamped_strcmp(const char* left, const char* right) {
+  return arduino::min(1, arduino::max(-1,strcmp(left, right)));
+}
 
 /**************************************************************************************
  * TEST CODE
@@ -27,13 +31,13 @@ TEST_CASE ("Testing String::compareTo(const String &)", "[String-compareTo-01]")
   WHEN ("str2 is empty")
   {
     arduino::String str1("Hello"), str2;
-    REQUIRE(str1.compareTo(str2) == strcmp(str1.c_str(), str2.c_str()));
+    REQUIRE(str1.compareTo(str2) == clamped_strcmp(str1.c_str(), str2.c_str()));
   }
 
   WHEN ("str1 is empty")
   {
     arduino::String str1, str2("Hello");
-    REQUIRE(str1.compareTo(str2) == strcmp(str1.c_str(), str2.c_str()));
+    REQUIRE(str1.compareTo(str2) == clamped_strcmp(str1.c_str(), str2.c_str()));
   }
 }
 
@@ -48,13 +52,13 @@ TEST_CASE ("Testing String::compareTo(const char *)", "[String-compareTo-02]")
   WHEN ("Passed string is empty")
   {
     arduino::String str1("Hello"), str2("");
-    REQUIRE(str1.compareTo("") == strcmp(str1.c_str(), str2.c_str()));
+    REQUIRE(str1.compareTo("") == clamped_strcmp(str1.c_str(), str2.c_str()));
   }
 
   WHEN ("Passed string is compared with empty string")
   {
     arduino::String str1, str2("Hello");
-    REQUIRE(str1.compareTo("Hello") == strcmp(str1.c_str(), str2.c_str()));
+    REQUIRE(str1.compareTo("Hello") == clamped_strcmp(str1.c_str(), str2.c_str()));
   }
 }
 
@@ -114,14 +118,14 @@ TEST_CASE("Testing String::compareTo(const std::string &)", "[String-compareTo-0
     {
         arduino::String str1("Hello");
         std::string str2;
-        REQUIRE(str1.compareTo(str2) == strcmp(str1.c_str(), str2.c_str()));
+        REQUIRE(str1.compareTo(str2) == clamped_strcmp(str1.c_str(), str2.c_str()));
     }
 
     WHEN("str1 is empty")
     {
         arduino::String str1;
         std::string str2("Hello");
-        REQUIRE(str1.compareTo(str2) == strcmp(str1.c_str(), str2.c_str()));
+        REQUIRE(str1.compareTo(str2) == clamped_strcmp(str1.c_str(), str2.c_str()));
     }
 }
 

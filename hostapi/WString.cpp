@@ -166,9 +166,9 @@ String& String::copy(const std::string& str)
 #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__) || _MSVC_LANG >= 201402L
 void String::move(String &rhs)
 {
-	buffer.assign(std::move(rhs.buffer));
-	if (this != &rhs)
-		rhs.buffer.clear();
+	if (this == &rhs) return;
+	buffer = std::move(rhs.buffer);
+	rhs.buffer.clear();
 }
 #endif
 

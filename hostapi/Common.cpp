@@ -25,7 +25,7 @@ void delay(unsigned long ms)
 	this_thread::sleep_for(chrono::milliseconds(ms));
 }
 
-static void delayMicroseconds(unsigned long us)
+void delayMicroseconds(unsigned long us)
 {
 	boost::this_thread::sleep_for(boost::chrono::microseconds(us));
 }
