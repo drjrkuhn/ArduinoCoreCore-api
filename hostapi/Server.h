@@ -1,5 +1,6 @@
 /*
-  Copyright (c) 2016 Arduino LLC.  All right reserved.
+  Server.h - Base class that provides Server
+  Copyright (c) 2011 Adrian McEwen.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -8,8 +9,8 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Lesser General Public License for more details.
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
@@ -18,22 +19,13 @@
 
 #pragma once
 
-//#include <stdlib.h>
+#include "Print.h"
 
 namespace arduino {
 
-class Print;
-
-/** The Printable class provides a way for new classes to allow themselves to be printed.
-    By deriving from Printable and implementing the printTo method, it will then be possible
-    for users to print out instances of this class by passing them into the usual
-    Print::print and Print::println methods.
-*/
-
-class Printable
-{
+class Server : public Print {
   public:
-    virtual size_t printTo(Print& p) const = 0;
+    virtual void begin() = 0;
 };
 
 }

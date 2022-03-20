@@ -1,48 +1,37 @@
 add_library(ArduinoAPIhost
-#	ArduinoAPI.h
-#	Binary.h
-#	Client.h
+	ArduinoAPI.h
+	Binary.h
+	Client.h
 	Common.cpp
 	Common.h
-#[[
 	Compat.h
-	HardwareI2C.h
-	HardwareSerial.h
-	HardwareSPI.h
-	Interrupts.h
-]]
+#	HardwareI2C.h
+#	HardwareSerial.h
+#	HardwareSPI.h
+#	Interrupts.h
 	IPAddress.cpp
 	IPAddress.h
-#[[
-	itoa.h
-	PluggableUSB.cpp
-	PluggableUSB.h
-]]
+#	itoa.h
+#	PluggableUSB.cpp
+#	PluggableUSB.h
 	Print.cpp
 	Print.h
 	Printable.cpp
 	Printable.h
 	Print_std.h
 	RingBuffer.h
-#	Server.h
+	Server.h
 	Stream.cpp
 	Stream.h
 	Stream_std.h
 	WString.cpp
 	WString.h
 	StringHelpers.h
-#[[
 	Udp.h
-	USBAPI.h
-]]
+#	USBAPI.h
 	
-#[[
-	deprecated-avr-comp/avr/dtostrf.h
-	deprecated-avr-comp/avr/interrupt.h
-	deprecated-avr-comp/avr/pgmspace.h
-]]
     deprecated/host/pgmspace.h
-)
+ )
 
 #add_compile_definitions(USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
 #target_compile_definitions(ArduinoAPIhost  USBCON=1 HAVE_HWSERIAL0=1 HAVE_HWSERIAL1=1 HAVE_HWSERIAL2=1 HAVE_HWSERIAL3=1)
