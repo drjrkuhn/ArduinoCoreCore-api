@@ -23,7 +23,7 @@ add_library(ArduinoAPIhost
 	Printable.cpp
 	Printable.h
 	Print_std.h
-#	RingBuffer.h
+	RingBuffer.h
 #	Server.h
 	Stream.cpp
 	Stream.h
@@ -34,7 +34,9 @@ add_library(ArduinoAPIhost
 #[[
 	Udp.h
 	USBAPI.h
-	WCharacter.h
+]]
+	
+#[[
 	deprecated-avr-comp/avr/dtostrf.h
 	deprecated-avr-comp/avr/interrupt.h
 	deprecated-avr-comp/avr/pgmspace.h
