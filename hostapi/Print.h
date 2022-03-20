@@ -39,7 +39,7 @@ class Print_base
 {
 public:
     virtual ~Print_base() = default;
-    virtual size_t write(uint8_t) = 0;
+    virtual size_t write(const uint8_t) = 0;
     virtual size_t write(const uint8_t* buffer, size_t size) = 0;
 
     virtual size_t write(const std::string& str) = 0;
@@ -56,9 +56,7 @@ class Print : public Print_base
   public:
     Print() : write_error(0) {}
 
-    virtual size_t write(uint8_t) override = 0;
-    virtual size_t write(const uint8_t* buffer, size_t size) override = 0;
-
+    virtual size_t write(const uint8_t* buffer, size_t size) override;
     int getWriteError() { return write_error; }
     void clearWriteError() { setWriteError(0); }
 

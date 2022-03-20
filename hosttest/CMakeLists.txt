@@ -1,7 +1,7 @@
 ##########################################################################
 
 cmake_minimum_required(VERSION 3.2)
-set(CMAKE_VERBOSE_MAKEFILE OFF)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 message("hosttest  CORELIB_NAME = ${CORELIB_NAME}")
 
@@ -94,7 +94,7 @@ set(TEST_SRCS
 
 ##########################################################################
 
-set(TEST_TARGET_SRCS  src/main.cpp)
+set(TEST_TARGET_SRCS  src/main.cpp ${TEST_SRCS})
 
 ##########################################################################
 
@@ -112,7 +112,7 @@ add_executable( ${TEST_TARGET}  ${TEST_TARGET_SRCS})
 add_dependencies(${TEST_TARGET}	${CORELIB_NAME})
 target_link_libraries(${TEST_TARGET} PRIVATE Catch2::Catch2 ${CORELIB_NAME})
 
-add_executable(work1  work/work1.cpp)
+add_executable(work1 work/work1.cpp)
 add_dependencies(work1 ${CORELIB_NAME})
 target_link_libraries(work1 PRIVATE ${CORELIB_NAME})
 
